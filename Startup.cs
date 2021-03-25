@@ -78,6 +78,7 @@ namespace GaryPortalAPI
             services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IStaffService, StaffService>();
             services.AddScoped<IChatBotService, ChatBotService>();
+            services.AddScoped<IAppService, AppService>();
             services.AddTransient<IHashingService, HashingService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IEmailService, EmailService>();

@@ -47,6 +47,8 @@ public class AppDbContext : DbContext
     public DbSet<ChatMember> ChatMembers { get; set; }
     public DbSet<ChatMessageType> ChatMessageTypes { get; set; }
 
+    public DbSet<Sticker> Stickers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         #region User
