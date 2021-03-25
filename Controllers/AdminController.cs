@@ -70,5 +70,12 @@ namespace GaryPortalAPI.Controllers
             await _chatService.MarkReportAsDeletedAsync(reportId, ct);
             return Ok();
         }
+
+        [HttpPost("PostNotification")]
+        public async Task<IActionResult> PostNotificiation([FromBody] APSAlert notification, int teamId = 0, CancellationToken ct = default)
+        {
+            await _staffService.PostNotification(teamId, notification, ct);
+            return Ok();
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace GaryPortalAPI.Services
         Task<ICollection<BanType>> GetAllBanTypesAsync(CancellationToken ct = default);
         Task<ICollection<Rank>> GetAllRanksAsync(CancellationToken ct = default);
         Task<Joke> GetRandomJoke(CancellationToken ct = default);
+        Task PostNotification(int teamId, APSAlert alert, CancellationToken ct = default);
     }
 
     public class StaffService : IStaffService
@@ -105,6 +106,19 @@ namespace GaryPortalAPI.Services
             RestRequest request = new RestRequest("jokes/random", Method.GET);
             var joke = await client.ExecuteAsync<Joke>(request);
             return joke.Data;
+        }
+
+        public async Task PostNotification(int teamId, APSAlert alert, CancellationToken ct = default)
+        {
+            ICollection<User> users = await _userService.GetAllAsync(teamId: teamId);
+            foreach (User user in users)
+            {
+                ICollection<string> apns = await _context.UserAPNS.Where(u => u.UserUUID == user.UserUUID).Select(u => u.APNSToken).ToListAsync(ct);
+                foreach (string token in apns)
+                {
+                    await _userService.PostNotification(token, Notification.CreateNotification(alert));
+                }
+            }
         }
        
     }
