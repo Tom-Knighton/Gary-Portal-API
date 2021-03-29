@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GaryPortalAPI.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     public class AppController : Controller
     {
