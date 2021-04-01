@@ -18,7 +18,7 @@ jobs:
             docker rm GPAPIDev 2>/dev/null || true
             cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
             docker build -t garyportalapi-dev -f Dockerfile.dev .
-            docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped garyportalapi-dev
+            docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped --add-host host.docker.internal:host-gateway garyportalapi-dev
             docker start GPAPIDev
   docker-prod:
     name: Publish - Docker Prod
@@ -31,5 +31,5 @@ jobs:
             docker rm GPAPIProd 2>/dev/null || true
             cp /home/GaryPortal/API/PROD/appsettings.json appsettings.json
             docker build -t garyportalapi-prod -f Dockerfile.prod .
-            docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped garyportalapi-prod
+            docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped --add-host host.docker.internal:host-gateway garyportalapi-prod
             docker start GPAPIProd
