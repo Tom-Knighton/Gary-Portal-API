@@ -41,7 +41,7 @@ namespace GaryPortalAPI.Controllers
         }
 
         [HttpGet("GetPostDTOs")]
-        [Produces(typeof(ICollection<FeedPost>))]
+        [Produces(typeof(ICollection<FeedPostDTO>))]
         public async Task<IActionResult> GetMyDTOPosts(string uuid = "", CancellationToken ct = default)
         {
             if (!AuthenticationUtilities.IsAllowedFeed(User))

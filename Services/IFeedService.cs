@@ -100,7 +100,7 @@ namespace GaryPortalAPI.Services
                 .Include(fp => fp.Likes.Where(fl => fl.IsLiked))
                 .Include(fp => fp.Poster)
                 .Include(fp => fp.PostTeam)
-                .Include(fp => fp.Comments)
+                .Include(fp => fp.Comments.Where(fc => !fc.IsDeleted))
                     .ThenInclude(fpp => fpp.User)
                 .Include(fp => ((FeedPollPost)fp).PollAnswers)
                     .ThenInclude(fpa => fpa.Votes.Where(fpv => !fpv.IsDeleted))
