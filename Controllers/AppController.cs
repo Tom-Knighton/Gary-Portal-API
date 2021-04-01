@@ -44,7 +44,7 @@ namespace GaryPortalAPI.Controllers
         [HttpGet("TestDocker")]
         public async Task<IActionResult> TestDocker()
         {
-            return Ok(1);
+            return Ok(10);
         }
     }
 }
