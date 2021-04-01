@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+WORKDIR /App
+
+COPY *.csproj ./
+RUN dotnet restore
+
+
+COPY . ./
+RUN dotnet publish -c Debug -o out
+COPY appsettings.Development.json out/appsettings.Development.json
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+WORKDIR /App
+COPY --from=build-env /App/out .
+EXPOSE 5000
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://*:5000
+ENTRYPOINT ["dotnet", "GaryPortalAPI.dll"]

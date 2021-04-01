@@ -2,14 +2,16 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GaryPortalAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210329141719_Events+Commandments")]
+    partial class EventsCommandments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,9 +195,6 @@ namespace GaryPortalAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("EventCoverUrl")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime(6)");
 
@@ -211,7 +210,7 @@ namespace GaryPortalAPI.Migrations
                     b.Property<string>("EventShortDescription")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("EventTeamId")
+                    b.Property<int>("EventTeamId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsEventDeleted")
@@ -921,7 +920,8 @@ namespace GaryPortalAPI.Migrations
                     b.HasOne("GaryPortalAPI.Models.Team", "EventTeam")
                         .WithMany("TeamEvents")
                         .HasForeignKey("EventTeamId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("EventTeam");
                 });

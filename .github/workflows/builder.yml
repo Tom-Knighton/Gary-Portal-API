@@ -1,0 +1,35 @@
+name: GP-BUILDER
+
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'master'
+
+jobs:
+  docker-dev:
+    name: Publish - Docker Dev
+    runs-on: devapi
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+            docker stop GPAPIDev 2>/dev/null || true
+            docker rm GPAPIDev 2>/dev/null || true
+            cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
+            docker build -t garyportalapi-dev -f Dockerfile.dev .
+            docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped garyportalapi-dev
+            docker start GPAPIDev
+  docker-prod:
+    name: Publish - Docker Prod
+    runs-on: prodapi
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+            docker stop GPAPIProd 2>/dev/null || true
+            docker rm GPAPIProd 2>/dev/null || true
+            cp /home/GaryPortal/API/PROD/appsettings.json appsettings.json
+            docker build -t garyportalapi-prod -f Dockerfile.prod .
+            docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped garyportalapi-prod
+            docker start GPAPIProd

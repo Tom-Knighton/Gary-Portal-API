@@ -23,12 +23,40 @@ namespace GaryPortalAPI.Models.Feed
         public virtual Team PostTeam { get; set; }
         public virtual ICollection<FeedLike> Likes { get; set; }
         public virtual ICollection<FeedComment> Comments { get; set; }
+
+        public FeedPostDTO ConvertToDTO()
+        {
+            return new FeedPostDTO
+            {
+                PostId = PostId,
+                PosterUUID = PosterUUID,
+                PostType = PostType
+            };
+        }
+    }
+
+
+    public class FeedPostDTO
+    {
+        public int PostId { get; set; }
+        public string PosterUUID { get; set; }
+        public string PostType { get; set; }
+        public string PostUrl { get; set; }
+        public bool IsVideo { get; set; }
     }
 
     public class FeedMediaPost : FeedPost
     {
         public string PostUrl { get; set; }
         public bool IsVideo { get; set; }
+
+        public new FeedPostDTO ConvertToDTO()
+        {
+            FeedPostDTO dto = base.ConvertToDTO();
+            dto.PostUrl = PostUrl;
+            dto.IsVideo = IsVideo;
+            return dto;
+        }
     }
 
     public class FeedPollPost : FeedPost
