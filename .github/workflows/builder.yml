@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-            docker stop GPAPIDev
+            docker stop GPAPIDev 2>/dev/null || true
             docker rm GPAPIDev 2>/dev/null || true
             docker build -t garyportalapi-dev -f Dockerfile.dev .
             docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped garyportalapi-dev
