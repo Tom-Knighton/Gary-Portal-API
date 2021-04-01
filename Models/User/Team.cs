@@ -13,5 +13,6 @@ namespace GaryPortalAPI.Models
         public virtual ICollection<UserTeam> UserTeams { get; set; }
         public virtual ICollection<FeedPost> FeedPosts { get; set; }
         public virtual ICollection<AditLog> AditLogs { get; set; }
+        public virtual ICollection<Event> TeamEvents { get; set; }
     }
 }

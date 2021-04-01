@@ -48,6 +48,8 @@ public class AppDbContext : DbContext
     public DbSet<ChatMessageType> ChatMessageTypes { get; set; }
 
     public DbSet<Sticker> Stickers { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<Commandment> Commandments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -447,6 +449,15 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
             entity.Ignore(cm => cm.UserDTO);
+        });
+
+        #endregion
+
+        #region Misc
+
+        modelBuilder.Entity<Event>(entity =>
+        {
+            entity.HasOne(e => e.EventTeam).WithMany(t => t.TeamEvents).HasForeignKey(e => e.EventTeamId).OnDelete(DeleteBehavior.Cascade);
         });
 
         #endregion

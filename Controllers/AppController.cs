@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GaryPortalAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +27,18 @@ namespace GaryPortalAPI.Controllers
         public async Task<IActionResult> GetStickers()
         {
             return Ok(await _appService.GetStickersAsync());
+        }
+
+        [HttpGet("GetEvents")]
+        public async Task<IActionResult> GetEvents(int teamId = 0, CancellationToken ct = default)
+        {
+            return Ok(await _appService.GetEventsAsync(teamId, ct));
+        }
+
+        [HttpGet("GetCommandments")]
+        public async Task<IActionResult> GetCommandments(CancellationToken ct = default)
+        {
+            return Ok(await _appService.GetCommandmentsAsync(ct));
         }
     }
 }
