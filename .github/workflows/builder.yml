@@ -9,7 +9,7 @@ jobs:
   docker-dev:
     name: Publish - Docker Dev
     runs-on: devapi
-    if: github.ref == 'refs/head/develop'
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v2
       - run: |
