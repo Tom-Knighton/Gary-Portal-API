@@ -14,6 +14,7 @@ jobs:
       - run: |
             docker stop GPAPIDev 2>/dev/null || true
             docker rm GPAPIDev 2>/dev/null || true
+            cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
             docker build -t garyportalapi-dev -f Dockerfile.dev .
             docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped garyportalapi-dev
             docker start GPAPIDev
