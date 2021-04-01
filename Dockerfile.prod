@@ -7,6 +7,7 @@ RUN dotnet restore
 
 COPY . ./
 RUN dotnet publish -c Release -o out
+COPY appsettings.json out/appsettings.json
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /App
