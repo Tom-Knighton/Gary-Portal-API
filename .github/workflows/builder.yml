@@ -3,12 +3,13 @@ name: GP-BUILDER
 on:
   push:
     branches:
-      - 'feature/v5features'
+      - 'develop'
 
 jobs:
-  docker:
-    name: Publish - Docker
-    runs-on: self-hosted
+  docker-dev:
+    name: Publish - Docker Dev
+    runs-on: devapi
+    if: github.ref == 'refs/head/develop'
     steps:
       - uses: actions/checkout@v2
       - run: |
