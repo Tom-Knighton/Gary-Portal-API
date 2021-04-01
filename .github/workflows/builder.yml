@@ -8,7 +8,7 @@ on:
 jobs:
   docker:
     name: Publish - Docker
-    runs-on: ubtuntu-18.04
+    runs-on: self-hosted
     steps:
       - run: |
             docker stop GPAPIDev
