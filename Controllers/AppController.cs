@@ -40,6 +40,7 @@ namespace GaryPortalAPI.Controllers
             return Ok(await _appService.GetCommandmentsAsync(ct));
         }
 
+        [AllowAnonymous]
         [HttpGet("TestDocker")]
         public async Task<IActionResult> TestDocker()
         {
