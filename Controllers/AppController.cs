@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace GaryPortalAPI.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -39,6 +38,12 @@ namespace GaryPortalAPI.Controllers
         public async Task<IActionResult> GetCommandments(CancellationToken ct = default)
         {
             return Ok(await _appService.GetCommandmentsAsync(ct));
+        }
+
+        [HttpGet("TestDocker")]
+        public async Task<IActionResult> TestDocker()
+        {
+            return Ok(1);
         }
     }
 }
