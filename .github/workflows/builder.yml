@@ -3,7 +3,7 @@ name: GP-BUILDER
 on:
   push:
     branches:
-      - 'develop'
+      - 'feature/v5features'
 
 jobs:
   docker:
