@@ -40,7 +40,7 @@ jobs:
     if: github.ref == 'refs/heads/feature/v5features'
     steps:
       - uses: actions/checkout@v2
-       - run: |
+      - run: |
             docker stop GPAPIDevV5 2>/dev/null || true
             docker rm GPAPIDevV5 2>/dev/null || true
             cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
