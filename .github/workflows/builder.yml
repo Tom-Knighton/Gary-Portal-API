@@ -21,6 +21,9 @@ jobs:
             docker build -t garyportalapi-dev -f Dockerfile.dev .
             docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped --network="host" garyportalapi-dev
             docker start GPAPIDev
+      - uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
   docker-prod:
     name: Publish - Docker Prod
     runs-on: prodapi
@@ -34,6 +37,9 @@ jobs:
             docker build -t garyportalapi-prod -f Dockerfile.prod .
             docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped --network="host" garyportalapi-prod
             docker start GPAPIProd
+      - uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
   docker-v5:
     name: Publish - Docker v5 beta
     runs-on: v5api
