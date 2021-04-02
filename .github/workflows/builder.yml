@@ -49,7 +49,7 @@ jobs:
             docker start GPAPIDevV5
   success:
     if: always()
-    with:
-      webhook: ${{ secrets.DISCORD_WEBHOOK }}
     steps:
       - uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
