@@ -48,8 +48,7 @@ jobs:
             docker create -p 0.0.0.0:5101:5101 --name "GPAPIDevV5" --restart unless-stopped --network="host" garyportalapi-devv5
             docker start GPAPIDevV5
   success:
-    if: always()
-    steps:
-      uses: sarisia/actions-status-discord@v1
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
