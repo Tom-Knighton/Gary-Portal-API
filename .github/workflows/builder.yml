@@ -5,6 +5,7 @@ on:
     branches:
       - 'develop'
       - 'master'
+      - 'feature/v5features'
 
 jobs:
   docker-dev:
@@ -33,3 +34,16 @@ jobs:
             docker build -t garyportalapi-prod -f Dockerfile.prod .
             docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped --network="host" garyportalapi-prod
             docker start GPAPIProd
+  docker-v5:
+    name: Publish - Docker v5 beta
+    runs-on: v5api
+    if: github.ref == 'refs/heads/feature/v5features'
+    steps:
+      - uses: actions/checkout@v2
+       - run: |
+            docker stop GPAPIDevV5 2>/dev/null || true
+            docker rm GPAPIDevV5 2>/dev/null || true
+            cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
+            docker build -t garyportalapi-devv5 -f Dockerfile.devv5 .
+            docker create -p 0.0.0.0:5101:5101 --name "GPAPIDevV5" --restart unless-stopped --network="host" garyportalapi-devv5
+            docker start GPAPIDevV5
