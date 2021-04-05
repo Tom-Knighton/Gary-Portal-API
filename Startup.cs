@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace GaryPortalAPI
@@ -37,7 +38,30 @@ namespace GaryPortalAPI
                 });
 
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            services.AddSwaggerGen();
+
+            services.AddSwaggerGen(options =>
+            {
+                var jwtSecurity = new OpenApiSecurityScheme
+                {
+                    Name = "JWT Token",
+                    Description = "Enter JWT Token here, Excluding 'Bearer '",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                options.AddSecurityDefinition(jwtSecurity.Reference.Id, jwtSecurity);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { jwtSecurity, Array.Empty<string>() }
+                });
+            });
 
             services.AddSignalR();
 

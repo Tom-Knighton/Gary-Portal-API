@@ -28,6 +28,7 @@ namespace GaryPortalAPI.Services
         Task ClearAllPrayersAsync(CancellationToken ct = default);
         Task ClearPrayersForUserAsync(string uuid, CancellationToken ct = default);
         Task<User> UpdateUserDetailsAsync(string uuid, UserDetails details, CancellationToken ct = default);
+        Task UpdateBioForUserAsync(string uuid, string bio, CancellationToken ct = default);
         Task<User> StaffManageUserDetailsAsync(string uuid, StaffManagedUserDetails details, CancellationToken ct = default);
         Task<string> UpdateUserProfilePictureAsync(string uuid, IFormFile file, CancellationToken ct = default);
         Task<User> CreateNewUserAsync(UserRegistration creatingUser, CancellationToken ct = default);
@@ -203,6 +204,13 @@ namespace GaryPortalAPI.Services
 
             await _context.SaveChangesAsync(ct);
             return user;
+        }
+
+        public async Task UpdateBioForUserAsync(string uuid, string bio, CancellationToken ct = default)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.UserUUID == uuid, ct);
+            user.UserBio = bio;
+            await _context.SaveChangesAsync(ct);
         }
 
         public async Task<User> StaffManageUserDetailsAsync(string uuid, StaffManagedUserDetails details, CancellationToken ct = default)

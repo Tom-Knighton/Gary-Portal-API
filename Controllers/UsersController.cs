@@ -97,6 +97,17 @@ namespace GaryPortalAPI.Controllers
             return Ok(await _userRepository.UpdateUserDetailsAsync(uuid, details, ct));
         }
 
+        [HttpPut("UpdateBio")]
+        public async Task<IActionResult> UpdateBioForUser(string uuid, [FromBody] string bio, CancellationToken ct = default)
+        {
+            string uuidToChange = string.IsNullOrEmpty(uuid) ? AuthenticationUtilities.GetUUIDFromIdentity(User) : uuid;
+            if (!AuthenticationUtilities.IsSameUserOrPrivileged(User, uuidToChange))
+                return Unauthorized("You do not have access to this endpoint");
+
+            await _userRepository.UpdateBioForUserAsync(uuidToChange, bio, ct);
+            return Ok();
+        }
+
 
 
         [HttpPost("UpdateProfilePictureForUser/{uuid}")]
