@@ -2,6 +2,7 @@
 using GaryPortalAPI.Models;
 using GaryPortalAPI.Models.Chat;
 using GaryPortalAPI.Models.Feed;
+using GaryPortalAPI.Models.Games;
 using Microsoft.EntityFrameworkCore;
 
 public class AppDbContext : DbContext
@@ -50,6 +51,8 @@ public class AppDbContext : DbContext
     public DbSet<Sticker> Stickers { get; set; }
     public DbSet<Event> Events { get; set; }
     public DbSet<Commandment> Commandments { get; set; }
+
+    public DbSet<GameType> GameTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -458,6 +461,19 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Event>(entity =>
         {
             entity.HasOne(e => e.EventTeam).WithMany(t => t.TeamEvents).HasForeignKey(e => e.EventTeamId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        #endregion
+
+        #region Game Types
+
+        modelBuilder.Entity<GameType>(entity =>
+        {
+            entity.HasKey(gt => gt.GameUUID);
+            entity.HasOne(gt => gt.GameTeam)
+                .WithMany()
+                .HasForeignKey(gt => gt.GameTeamId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         #endregion

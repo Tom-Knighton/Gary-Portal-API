@@ -45,7 +45,7 @@ namespace GaryPortalAPI
             {
                 o.UseMySql(
                         Configuration["AppSettings:Connection"],
-                        new MySqlServerVersion(new Version(8, 0, 21)), // use MariaDbServerVersion for MariaDB
+                        new MySqlServerVersion(new Version(8, 0, 21)),
                         mySqlOptions => mySqlOptions
                             .CharSetBehavior(CharSetBehavior.NeverAppend))
                     .EnableSensitiveDataLogging()
@@ -79,6 +79,9 @@ namespace GaryPortalAPI
             services.AddScoped<IStaffService, StaffService>();
             services.AddScoped<IChatBotService, ChatBotService>();
             services.AddScoped<IAppService, AppService>();
+            services.AddScoped<IGameTypeService, GameTypeService>();
+
+
             services.AddTransient<IHashingService, HashingService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IEmailService, EmailService>();

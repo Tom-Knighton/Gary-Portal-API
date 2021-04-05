@@ -25,6 +25,8 @@
     <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\js\" />
     <Folder Include="wwwroot\lib\" />
+    <Folder Include="Services\Games\" />
+    <Folder Include="Models\Games\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.1" />
