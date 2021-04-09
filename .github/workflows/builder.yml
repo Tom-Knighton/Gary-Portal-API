@@ -47,10 +47,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-            docker stop GPAPIDevV5 2>/dev/null || true
-            docker rm GPAPIDevV5 2>/dev/null || true
             cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
             docker build -t garyportalapi-devv5 -f Dockerfile.devv5 .
+            docker stop GPAPIDevV5 2>/dev/null || true
+            docker rm GPAPIDevV5 2>/dev/null || true
             docker create -p 0.0.0.0:5101:5101 --name "GPAPIDevV5" --restart unless-stopped --network="host" garyportalapi-devv5
             docker start GPAPIDevV5
       - uses: sarisia/actions-status-discord@v1

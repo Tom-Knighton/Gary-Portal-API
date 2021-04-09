@@ -39,6 +39,14 @@ namespace GaryPortalAPI
 
             services.AddRazorPages().AddRazorRuntimeCompilation();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
+
             services.AddSwaggerGen(options =>
             {
                 var jwtSecurity = new OpenApiSecurityScheme
@@ -125,6 +133,7 @@ namespace GaryPortalAPI
                 });
             }
 
+            app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
