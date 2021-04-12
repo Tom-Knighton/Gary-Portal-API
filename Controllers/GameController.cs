@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GaryPortalAPI.Models.Games;
 using GaryPortalAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +23,7 @@ namespace GaryPortalAPI.Controllers
 
 
         [HttpGet("GameTypes")]
+        [Produces(typeof(ICollection<GameType>))]
         public async Task<IActionResult> GetGameTypes(int teamId = 0, CancellationToken ct = default)
         {
             return Ok(await _gameTypeService.GetGameTypesAsync(teamId, ct));
