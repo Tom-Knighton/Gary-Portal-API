@@ -8,6 +8,7 @@ namespace GaryPortalAPI.Models.Games
         public string GameDescription { get; set; }
         public int? GameTeamId { get; set; }
         public bool GameIsEnabled { get; set; }
+        public string GameCoverUrl { get; set; }
 
         public virtual Team GameTeam { get; set; }
     }
