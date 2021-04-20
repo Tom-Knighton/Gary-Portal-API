@@ -31,7 +31,7 @@ namespace GaryPortalAPI.Hubs
             TicTacGaryGame game = new TicTacGaryGame
             {
                 GameCode = "",
-                GameMatrix = new int[size, size],
+                GameMatrix = new string[size, size],
                 GameSize = size,
             };
 
