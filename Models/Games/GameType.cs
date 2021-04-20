@@ -12,4 +12,18 @@ namespace GaryPortalAPI.Models.Games
 
         public virtual Team GameTeam { get; set; }
     }
+
+
+    public class TicTacGaryGame
+    {
+        public string GameCode { get; set; }
+        public int GameSize { get; set; }
+        public string FirstPlayerUUID { get; set; }
+        public string SecondPlayerUUID { get; set; }
+        public int[,] GameMatrix { get; set; }
+        public string WinnerUUID { get; set; }
+        public int GameWinType { get; set; }
+    }
 }
+
+
