@@ -4,15 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using GaryPortalAPI.Models.Chat;
 using GaryPortalAPI.Models.Games;
+using GaryPortalAPI.Services;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 
 namespace GaryPortalAPI.Hubs
 {
-    public class GameHub : Hub
+    public class GameHub : Hub 
     {
-
+        private readonly IUserService _userService;
         private static List<TicTacGaryGame> _games = new List<TicTacGaryGame>();
+
+        public GameHub(IUserService userService)
+        {
+            _userService = userService;
+        }
 
 
         public async Task CreateTTGGame(string creatorUUID, int size)
@@ -48,8 +54,16 @@ namespace GaryPortalAPI.Hubs
 
             bool isSecondPlayer = !string.IsNullOrEmpty(game.FirstPlayerUUID) && string.IsNullOrEmpty(game.SecondPlayerUUID);
 
-            if (isSecondPlayer) { game.SecondPlayerUUID = uuid; }
-            else { game.FirstPlayerUUID = uuid; }
+            if (isSecondPlayer)
+            {
+                game.SecondPlayerUUID = uuid;
+                game.SecondUser = await _userService.GetDTOByIdAsync(uuid);
+            }
+            else
+            {
+                game.FirstPlayerUUID = uuid;
+                game.FirstUser = await _userService.GetDTOByIdAsync(uuid);
+            }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, code);
             await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game));

@@ -19,6 +19,7 @@ namespace GaryPortalAPI.Services
         Task<ICollection<User>> GetAllAsync(int teamId = 0, bool includeQueued = false, CancellationToken ct = default);
         Task<ICollection<User>> GetAllQueuedAsync(CancellationToken ct = default);
         Task<User> GetByIdAsync(string userUUID, CancellationToken ct = default);
+        Task<UserDTO> GetDTOByIdAsync(string userUUID, CancellationToken ct = default);
         Task<string> GetUUIDFromUsername(string username, CancellationToken ct = default);
         Task<string> GetUUIDFromEmail(string email, CancellationToken ct = default);
         Task<bool> IsUsernameFreeAsync(string username, CancellationToken ct = default);
@@ -119,6 +120,15 @@ namespace GaryPortalAPI.Services
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
                 .FirstOrDefaultAsync(u => u.UserUUID == userUUID, ct);
+        }
+
+        public async Task<UserDTO> GetDTOByIdAsync(string userUUID, CancellationToken ct = default)
+        {
+             return await _context.Users
+                .AsNoTracking()
+                .Where(u => u.UserUUID == userUUID && !u.IsDeleted)
+                .Select(u => new UserDTO { UserUUID = u.UserUUID, UserFullName = u.UserFullName, UserIsAdmin = u.UserIsAdmin, UserIsStaff = u.UserIsStaff, UserProfileImageUrl = u.UserProfileImageUrl })
+                .FirstOrDefaultAsync(ct);
         }
 
         public async Task<string> GetUUIDFromUsername(string username, CancellationToken ct = default)

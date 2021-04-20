@@ -23,6 +23,9 @@ namespace GaryPortalAPI.Models.Games
         public int[,] GameMatrix { get; set; }
         public string WinnerUUID { get; set; }
         public int GameWinType { get; set; }
+
+        public virtual UserDTO FirstUser { get; set; }
+        public virtual UserDTO SecondUser { get; set; }
     }
 }
 
