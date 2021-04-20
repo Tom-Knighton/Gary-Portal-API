@@ -7,6 +7,7 @@ using GaryPortalAPI.Models.Games;
 using GaryPortalAPI.Services;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace GaryPortalAPI.Hubs
 {
@@ -15,9 +16,13 @@ namespace GaryPortalAPI.Hubs
         private readonly IUserService _userService;
         private static List<TicTacGaryGame> _games = new List<TicTacGaryGame>();
 
+
+        JsonSerializerSettings camelCaseFormatter = new JsonSerializerSettings();
+        
         public GameHub(IUserService userService)
         {
             _userService = userService;
+            camelCaseFormatter.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }
 
 
@@ -66,7 +71,7 @@ namespace GaryPortalAPI.Hubs
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, code);
-            await Clients.Group(code).SendAsync("UpdateGameLobby", game);
+            await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game, camelCaseFormatter));
         }
 
 
