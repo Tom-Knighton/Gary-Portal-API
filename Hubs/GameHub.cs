@@ -20,7 +20,6 @@ namespace GaryPortalAPI.Hubs
             TicTacGaryGame game = new TicTacGaryGame
             {
                 GameCode = "",
-                FirstPlayerUUID = creatorUUID,
                 GameMatrix = new int[size, size],
                 GameSize = size,
             };
@@ -49,8 +48,8 @@ namespace GaryPortalAPI.Hubs
 
             bool isSecondPlayer = !string.IsNullOrEmpty(game.FirstPlayerUUID) && string.IsNullOrEmpty(game.SecondPlayerUUID);
 
-            if (isSecondPlayer) game.SecondPlayerUUID = uuid;
-            else game.FirstPlayerUUID = uuid;
+            if (isSecondPlayer) { game.SecondPlayerUUID = uuid; }
+            else { game.FirstPlayerUUID = uuid; }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, code);
             await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game));
