@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Text.Json;
 using GaryPortalAPI.Data;
 using GaryPortalAPI.Hubs;
 using GaryPortalAPI.Services;
@@ -71,7 +72,10 @@ namespace GaryPortalAPI
                 });
             });
 
-            services.AddSignalR();
+            services.AddSignalR().AddJsonProtocol(options =>
+            {
+                options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            });
 
             services.AddDbContext<AppDbContext>(o =>
             {

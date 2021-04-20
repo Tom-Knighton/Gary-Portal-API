@@ -66,7 +66,7 @@ namespace GaryPortalAPI.Hubs
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, code);
-            await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game));
+            await Clients.Group(code).SendAsync("UpdateGameLobby", game);
         }
 
 
