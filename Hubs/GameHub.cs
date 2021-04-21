@@ -26,6 +26,8 @@ namespace GaryPortalAPI.Hubs
         }
 
 
+
+        #region Tic Tac Gary
         public async Task CreateTTGGame(string creatorUUID, int size)
         {
             TicTacGaryGame game = new TicTacGaryGame
@@ -74,11 +76,36 @@ namespace GaryPortalAPI.Hubs
             await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game, camelCaseFormatter));
         }
 
+        public async Task LeaveTTGGame(string uuid, string code)
+        {
+            TicTacGaryGame game = _games.First(g => g.GameCode == code);
+            if (game == null)
+                return;
 
+            bool isHost = uuid == game.FirstPlayerUUID;
+            if (isHost)
+            {
+                game.FirstPlayerUUID = null;
+                game.FirstUser = null;
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, code);
+                await Clients.Group(code).SendAsync("HostLeftLobby");
+
+                _games.RemoveAll(g => g.GameCode == code);
+            }
+            else
+            {
+                game.SecondPlayerUUID = null;
+                game.SecondUser = null;
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, code);
+                await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game, camelCaseFormatter));
+            }
+        }
 
         public async Task StartTTGGame(string code)
         {
             await Clients.Group(code).SendAsync("TTG_StartGame");
         }
+
+        #endregion
     }
 }
