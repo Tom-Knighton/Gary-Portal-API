@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GaryPortalAPI.Models.Chat;
+using GaryPortalAPI.Data;
 using GaryPortalAPI.Models.Games;
 using GaryPortalAPI.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -28,7 +28,7 @@ namespace GaryPortalAPI.Hubs
 
 
         #region Tic Tac Gary
-        public async Task CreateTTGGame(string creatorUUID, int size)
+        public async Task TTGCreateGame(string creatorUUID, int size)
         {
             TicTacGaryGame game = new TicTacGaryGame
             {
@@ -41,10 +41,10 @@ namespace GaryPortalAPI.Hubs
             string gameCode = random.Next(0, 1000000).ToString("D6");
             game.GameCode = gameCode;
             _games.Add(game);
-            await JoinTTGGame(creatorUUID, gameCode);
+            await TTGJoinGame(creatorUUID, gameCode);
         }
 
-        public async Task JoinTTGGame(string uuid, string code)
+        public async Task TTGJoinGame(string uuid, string code)
         {
             TicTacGaryGame game = _games.First(g => g.GameCode == code);
             if (game == null)
@@ -76,7 +76,7 @@ namespace GaryPortalAPI.Hubs
             await Clients.Group(code).SendAsync("UpdateGameLobby", JsonConvert.SerializeObject(game, camelCaseFormatter));
         }
 
-        public async Task LeaveTTGGame(string uuid, string code)
+        public async Task TTGLeaveGame(string uuid, string code)
         {
             TicTacGaryGame game = _games.First(g => g.GameCode == code);
             if (game == null)
@@ -101,9 +101,61 @@ namespace GaryPortalAPI.Hubs
             }
         }
 
-        public async Task StartTTGGame(string code)
+        public async Task TTGStartGame(string code)
         {
             await Clients.Group(code).SendAsync("TTG_StartGame");
+        }
+
+        public async Task TTGMakeMove(string code, string uuid, int row, int col)
+        {
+            TicTacGaryGame game = _games.FirstOrDefault(g => g.GameCode == code);
+            if (game == null)
+                return;
+
+            string symbol = uuid == game.FirstPlayerUUID ? "X" : "O";
+            game.GameMatrix[row, col] = symbol;
+
+            int winSize = game.GameSize == 3 ? 3 : 4;
+
+            string currentRow = string.Join("", game.GameMatrix.GetRow(row));
+            string currentCol = string.Join("", game.GameMatrix.GetCol(col));
+
+            bool hasWonHorizontal = false, hasWonVertical = false, hasWonDiagonal = false;
+            string winningWord = game.GameSize == 3 ? $"{symbol}{symbol}{symbol}" : $"{symbol}{symbol}{symbol}{symbol}";
+
+            if (!string.IsNullOrEmpty(currentRow) && currentRow.Contains(winningWord))
+            {
+                hasWonHorizontal = true;
+            }
+            if (!hasWonHorizontal && !string.IsNullOrEmpty(currentCol) && currentCol.Contains(winningWord))
+            {
+                hasWonVertical = true;
+            }
+            if (!hasWonHorizontal && !hasWonVertical)
+            {
+                if (game.GameMatrix.GetLeftDiagonalStringFromCoord(row, col) is string leftdiagonal && !string.IsNullOrWhiteSpace(leftdiagonal) && leftdiagonal.Contains(winningWord))
+                    hasWonDiagonal = true;
+                else if (game.GameMatrix.GetRightDiagonalStringFromCoord(row, col) is string rightdiagonal && !string.IsNullOrWhiteSpace(rightdiagonal) && rightdiagonal.Contains(winningWord))
+                    hasWonDiagonal = true;
+            }
+
+            if (hasWonDiagonal || hasWonHorizontal || hasWonHorizontal)
+            {
+                Array.Clear(game.GameMatrix, 0, game.GameMatrix.Length);
+                if (uuid == game.FirstPlayerUUID)
+                {
+                    game.PlayerOneWins += 1;
+                } else
+                {
+                    game.PlayerTwoWins += 1;
+                }
+                game.CurrentUUIDTurn = uuid == game.FirstPlayerUUID ? game.FirstPlayerUUID : game.SecondPlayerUUID;
+                await Clients.Group("code").SendAsync("TTG_GameWon", uuid);
+            } else
+            {
+                game.CurrentUUIDTurn = game.CurrentUUIDTurn == game.FirstPlayerUUID ? game.SecondPlayerUUID : game.FirstPlayerUUID;
+                await Clients.Group("code").SendAsync("TTG_MovePlayed", uuid, row, col);
+            }
         }
 
         #endregion
