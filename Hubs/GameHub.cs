@@ -46,7 +46,7 @@ namespace GaryPortalAPI.Hubs
 
         public async Task TTGJoinGame(string uuid, string code)
         {
-            TicTacGaryGame game = _games.First(g => g.GameCode == code);
+            TicTacGaryGame game = _games.FirstOrDefault(g => g.GameCode == code);
             if (game == null)
             {
                 await Clients.Client(Context.ConnectionId).SendAsync("ErrorJoiningGame", "There was no game with that game code found.");
@@ -78,7 +78,7 @@ namespace GaryPortalAPI.Hubs
 
         public async Task TTGLeaveGame(string uuid, string code)
         {
-            TicTacGaryGame game = _games.First(g => g.GameCode == code);
+            TicTacGaryGame game = _games.FirstOrDefault(g => g.GameCode == code);
             if (game == null)
                 return;
 
