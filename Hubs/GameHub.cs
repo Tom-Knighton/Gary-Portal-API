@@ -150,11 +150,13 @@ namespace GaryPortalAPI.Hubs
                     game.PlayerTwoWins += 1;
                 }
                 game.CurrentUUIDTurn = uuid == game.FirstPlayerUUID ? game.FirstPlayerUUID : game.SecondPlayerUUID;
-                await Clients.Group("code").SendAsync("TTG_GameWon", uuid);
-            } else
+                await Clients.Group(code).SendAsync("TTG_MovePlayed", uuid, row, col, symbol);
+                await Clients.Group(code).SendAsync("TTG_GameWon", uuid);
+            }
+            else
             {
                 game.CurrentUUIDTurn = game.CurrentUUIDTurn == game.FirstPlayerUUID ? game.SecondPlayerUUID : game.FirstPlayerUUID;
-                await Clients.Group("code").SendAsync("TTG_MovePlayed", uuid, row, col);
+                await Clients.Group(code).SendAsync("TTG_MovePlayed", uuid, row, col, symbol);
             }
         }
 
