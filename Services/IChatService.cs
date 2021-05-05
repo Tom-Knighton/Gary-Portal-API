@@ -187,10 +187,11 @@ namespace GaryPortalAPI.Services
             ICollection<ChatMessage> chatMessages = await _context.ChatMessages
                 .AsNoTracking()
                 .Include(cm => cm.User)
-                .Where(cm => cm.ChatUUID == chatUUID && !cm.MessageIsDeleted && fromDate <= cm.MessageCreatedAt)
+                .Where(cm => cm.ChatUUID == chatUUID && !cm.MessageIsDeleted && fromDate >= cm.MessageCreatedAt)
                 .OrderByDescending(cm => cm.MessageCreatedAt)
                 .Take(limit)
                 .ToListAsync(ct);
+
             foreach (ChatMessage msg in chatMessages)
             {
                 msg.UserDTO = msg.User.ConvertToDTO();
