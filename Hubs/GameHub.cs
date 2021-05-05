@@ -33,9 +33,13 @@ namespace GaryPortalAPI.Hubs
             TicTacGaryGame game = new TicTacGaryGame
             {
                 GameCode = "",
-                GameMatrix = new string[size, size],
+                GameMatrix = new TTGCell[size, size],
                 GameSize = size,
             };
+
+            for (int col = 0; col < game.GameMatrix.GetLength(0); col++)
+                for (int row = 0; row < game.GameMatrix.GetLength(1); row++)
+                    game.GameMatrix[col, row] = new TTGCell();
 
             Random random = new Random();
             string gameCode = random.Next(0, 1000000).ToString("D6");
@@ -113,12 +117,12 @@ namespace GaryPortalAPI.Hubs
                 return;
 
             string symbol = uuid == game.FirstPlayerUUID ? "X" : "O";
-            game.GameMatrix[row, col] = symbol;
+            game.GameMatrix[row, col].Content = symbol;
 
             int winSize = game.GameSize == 3 ? 3 : 4;
 
-            string currentRow = string.Join("", game.GameMatrix.GetRow(row));
-            string currentCol = string.Join("", game.GameMatrix.GetCol(col));
+            string currentRow = string.Join("", game.GameMatrix.GetRow(row).Select(r => r.Content));
+            string currentCol = string.Join("", game.GameMatrix.GetCol(col).Select(c => c.Content));
 
             bool hasWonHorizontal = false, hasWonVertical = false, hasWonDiagonal = false;
             string winningWord = game.GameSize == 3 ? $"{symbol}{symbol}{symbol}" : $"{symbol}{symbol}{symbol}{symbol}";

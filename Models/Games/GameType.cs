@@ -20,7 +20,7 @@ namespace GaryPortalAPI.Models.Games
         public int GameSize { get; set; }
         public string FirstPlayerUUID { get; set; }
         public string SecondPlayerUUID { get; set; }
-        public string[,] GameMatrix { get; set; }
+        public TTGCell[,] GameMatrix { get; set; }
         public string WinnerUUID { get; set; }
         public int GameWinType { get; set; }
         public string CurrentUUIDTurn { get; set; }
@@ -30,6 +30,18 @@ namespace GaryPortalAPI.Models.Games
 
         public virtual UserDTO FirstUser { get; set; }
         public virtual UserDTO SecondUser { get; set; }
+    }
+
+    public class TTGCell
+    {
+        public string Id { get; set; }
+        public string Content { get; set; }
+
+        public TTGCell()
+        {
+            Id = Guid.NewGuid().ToString();
+            Content = "";
+        }
     }
 }
 
