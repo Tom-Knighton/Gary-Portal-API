@@ -53,12 +53,13 @@ namespace GaryPortalAPI.Services
         private readonly AppDbContext _context;
         private readonly IHashingService _hashingService;
         private readonly ApiSettings _apiSettings;
-
-        public UserService(AppDbContext context, IHashingService hashingService, IOptions<ApiSettings> settings)
+        private readonly ICDNService _cdnService;
+        public UserService(AppDbContext context, IHashingService hashingService, IOptions<ApiSettings> settings, ICDNService cdnService)
         {
             _context = context;
             _hashingService = hashingService;
             _apiSettings = settings.Value;
+            _cdnService = cdnService;
         }
 
         public void Dispose()
@@ -260,13 +261,9 @@ namespace GaryPortalAPI.Services
             if (file == null) return null;
 
             User user = await _context.Users.FindAsync(uuid);
-            Directory.CreateDirectory($"/var/www/cdn/GaryPortal/ProfilePics/{uuid}");
             var fileName = $"{Guid.NewGuid():N}.jpg";
-            var filePath = $"/var/www/cdn/GaryPortal/ProfilePics/{uuid}/{fileName}";
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            await _cdnService.UploadProfilePicture(fileName, file, uuid, ct) ;
+
             string newProfileUrl = $"https://cdn.tomk.online/GaryPortal/ProfilePics/{uuid}/{fileName}";
             user.UserProfileImageUrl = newProfileUrl;
             await _context.SaveChangesAsync();

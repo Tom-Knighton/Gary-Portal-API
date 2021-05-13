@@ -44,11 +44,13 @@ namespace GaryPortalAPI.Services
 
         private readonly AppDbContext _context;
         private readonly IUserService _userService;
+        private readonly ICDNService _cdnService;
 
-        public ChatService(AppDbContext context, IUserService userService)
+        public ChatService(AppDbContext context, IUserService userService, ICDNService cdnService)
         {
             _context = context;
             _userService = userService;
+            _cdnService = cdnService;
         }
 
         public async Task<Chat> CreateNewChatAsync(Chat chat, CancellationToken ct = default)
@@ -260,9 +262,7 @@ namespace GaryPortalAPI.Services
             string uuid = Guid.NewGuid().ToString();
             Directory.CreateDirectory($"/var/www/cdn/GaryPortal/Chat/{chatUUID}/Attachments/");
             string newFileName = file.FileName.Replace(Path.GetFileNameWithoutExtension(file.FileName), uuid);
-            var filePath = $"/var/www/cdn/GaryPortal/Chat/{chatUUID}/Attachments/{newFileName}";
-            using (var stream = new FileStream(filePath, FileMode.Create))
-                await file.CopyToAsync(stream, ct);
+            await _cdnService.UploadChatAttachment(newFileName, file, chatUUID, ct);           
             return $"https://cdn.tomk.online/GaryPortal/Chat/{chatUUID}/Attachments/{newFileName}";
         }
 

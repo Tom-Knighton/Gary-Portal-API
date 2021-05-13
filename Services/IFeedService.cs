@@ -47,10 +47,12 @@ namespace GaryPortalAPI.Services
     public class FeedService : IFeedService
     {
         private readonly AppDbContext _context;
+        private readonly ICDNService _cdnService;
 
-        public FeedService(AppDbContext context)
+        public FeedService(AppDbContext context, ICDNService cdnService)
         {
             _context = context;
+            _cdnService = cdnService;
         }
 
         public async void Dispose()
@@ -169,9 +171,7 @@ namespace GaryPortalAPI.Services
             string uuid = Guid.NewGuid().ToString();
             Directory.CreateDirectory("/var/www/cdn/GaryPortal/Feed/Attachments/Media/");
             string newFileName = file.FileName.Replace(Path.GetFileNameWithoutExtension(file.FileName), uuid);
-            var filePath = $"/var/www/cdn/GaryPortal/Feed/Attachments/Media/{newFileName}";
-            using (var stream = new FileStream(filePath, FileMode.Create))
-                await file.CopyToAsync(stream, ct);
+            await _cdnService.UploadFeedMedia(newFileName, file, ct);
             return $"https://cdn.tomk.online/GaryPortal/Feed/Attachments/Media/{newFileName}";
         }
 
@@ -317,28 +317,15 @@ namespace GaryPortalAPI.Services
             if (aditLog == null) return null;
 
             string uuid = Guid.NewGuid().ToString();
-            Directory.CreateDirectory("/var/www/cdn/GaryPortal/Feed/Attachments/AditLogs/");
-            Directory.CreateDirectory("/var/www/cdn/GaryPortal/Feed/Attachments/AditLogs/Thumbs");
 
             string newFileName = aditLog.FileName.Replace(Path.GetFileNameWithoutExtension(aditLog.FileName), uuid);
-            var filePath = $"/var/www/cdn/GaryPortal/Feed/Attachments/AditLogs/{newFileName}";
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-                await aditLog.CopyToAsync(stream, ct);
-
-            string thumbnailFileName = "";
-            if (isVideo)
-            {
-                thumbnailFileName = $"{uuid}.jpg";
-                string thumbnailFilePath = $"/var/www/cdn/GaryPortal/Feed/Attachments/AditLogs/Thumbs/{thumbnailFileName}";
-                IConversion conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(filePath, thumbnailFilePath, TimeSpan.FromSeconds(0.2));
-                await conversion.Start(ct);
-            }
+            await _cdnService.UploadFeedAditLog(newFileName, aditLog, ct);
 
             return new AditLogUrlResult
             {
                 AditLogUrl = $"https://cdn.tomk.online/GaryPortal/Feed/Attachments/AditLogs/{newFileName}",
-                AditLogThumbnailUrl = isVideo ? $"https://cdn.tomk.online/GaryPortal/Feed/Attachments/AditLogs/Thumbs/{thumbnailFileName}" : ""
+                AditLogThumbnailUrl = isVideo ? $"https://cdn.tomk.online/GaryPortal/Feed/Attachments/AditLogs/Thumbs/{newFileName}.jpg" : ""
             };
 
         }
