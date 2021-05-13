@@ -42,6 +42,11 @@ namespace GaryPortalAPI.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
         }
 
+        public async Task NotifyStartTyping(string chatUUID, string memberUUID)
+        {
+            await Clients.Groups(chatUUID).SendAsync("UserIsTyping", memberUUID);
+        }
+
         public async Task KeepAlive()
         {
             await Clients.Client(Context.ConnectionId).SendAsync("KeepAlive");
