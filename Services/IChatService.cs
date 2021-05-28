@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using GaryPortalAPI.Models;
@@ -239,6 +240,7 @@ namespace GaryPortalAPI.Services
         public async Task<ChatMessage> AddMessageToChatAsync(ChatMessage msg, string chatUUID, CancellationToken ct = default)
         {
             msg.ChatMessageUUID = Guid.NewGuid().ToString("N");
+            msg.MessageContent = Regex.Replace(msg.MessageContent, "((https?://)?www\\.[^\\s]+)", "[$1]($1)");
             await _context.ChatMessages.AddAsync(msg, ct);
             await _context.SaveChangesAsync(ct);
             return msg;
