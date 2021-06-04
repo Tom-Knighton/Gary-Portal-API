@@ -76,6 +76,7 @@ namespace GaryPortalAPI.Models.Chat
         public string UserUUID { get; set; }
         public string MessageContent { get; set; }
         public bool MessageIsDeleted { get; set; }
+        public int MessageTypeId { get; set; }
         public virtual UserDTO UserDTO { get; set; }
     }
 
