@@ -116,7 +116,7 @@ namespace GaryPortalAPI
             services.AddScoped<IChatBotService, ChatBotService>();
             services.AddScoped<IAppService, AppService>();
             services.AddScoped<IGameTypeService, GameTypeService>();
-
+            services.AddTransient<ICDNService, CDNService>();
 
             services.AddTransient<IHashingService, HashingService>();
             services.AddTransient<ITokenService, TokenService>();

@@ -451,7 +451,13 @@ public class AppDbContext : DbContext
                 .HasForeignKey(cm => cm.MessageTypeId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
+            entity
+                .HasOne(cm => cm.ReplyingTo)
+                .WithMany()
+                .HasForeignKey(cm => cm.ReplyingToUUID);
+
             entity.Ignore(cm => cm.UserDTO);
+            entity.Ignore(cm => cm.ReplyingToDTO);
         });
 
         #endregion

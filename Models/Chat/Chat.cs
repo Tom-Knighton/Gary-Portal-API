@@ -48,11 +48,35 @@ namespace GaryPortalAPI.Models.Chat
         public bool MessageHasBeenEdited { get; set; }
         public int MessageTypeId { get; set; }
         public bool MessageIsDeleted { get; set; }
+        public string ReplyingToUUID { get; set; }
 
         public virtual Chat Chat { get; set; }
         public virtual User User { get; set; }
         public virtual UserDTO UserDTO { get; set; }
         public virtual ChatMessageType ChatMessageType { get; set; }
+        public virtual ChatMessage ReplyingTo { get; set; }
+        public virtual ChatMessageReplyDTO ReplyingToDTO { get; set; }
+
+        public ChatMessageReplyDTO ConvertToReplyDTO()
+        {
+            return new ChatMessageReplyDTO
+            {
+                ChatMessageUUID = ChatMessageUUID,
+                UserUUID = UserUUID,
+                MessageContent = MessageContent,
+                MessageIsDeleted = MessageIsDeleted,
+                UserDTO = User.ConvertToDTO()
+            };
+        }
+    }
+
+    public class ChatMessageReplyDTO
+    {
+        public string ChatMessageUUID { get; set; }
+        public string UserUUID { get; set; }
+        public string MessageContent { get; set; }
+        public bool MessageIsDeleted { get; set; }
+        public virtual UserDTO UserDTO { get; set; }
     }
 
     public class ChatMessageType
