@@ -241,7 +241,7 @@ namespace GaryPortalAPI.Services
             msg.ChatMessageUUID = Guid.NewGuid().ToString("N");
             await _context.ChatMessages.AddAsync(msg, ct);
             await _context.SaveChangesAsync(ct);
-            return msg;
+            return await GetMessageByIdAsync(msg.ChatMessageUUID, ct);
         }
 
         public async Task<bool> RemoveMessageAsync(string messageUUID, CancellationToken ct = default)
