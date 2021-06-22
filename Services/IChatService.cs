@@ -158,16 +158,8 @@ namespace GaryPortalAPI.Services
                 .AsNoTracking()
                 .Where(cm => cm.ChatUUID == chatUUID && !cm.MessageIsDeleted)
                 .OrderByDescending(cm => cm.MessageCreatedAt)
-                .Include(cm => cm.User)
-                .Include(cm => cm.ReplyingTo)
-                    .ThenInclude(r => r.User)
                 .Select(cm => new ChatMessage { MessageContent = cm.MessageContent, MessageCreatedAt = cm.MessageCreatedAt, MessageTypeId = cm.MessageTypeId, UserDTO = cm.User.ConvertToDTO() })
                 .FirstOrDefaultAsync(ct);
-
-            msg.UserDTO = msg.User.ConvertToDTO();
-            msg.User = null;
-            msg.ReplyingToDTO = msg.ReplyingTo.ConvertToReplyDTO();
-            msg.ReplyingTo = null;
             return msg;
         }
 
