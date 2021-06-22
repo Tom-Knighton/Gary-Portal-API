@@ -22,6 +22,11 @@ namespace GaryPortalAPI.Hubs
             await Clients.Group(groupToSendTo).SendAsync("RemoveMessage", groupToSendTo, messageUUID);
         }
 
+        public async Task EditedMessage(string chatUUID, string messageUUID, string newContent)
+        {
+            await Clients.Group(chatUUID).SendAsync("MessageUpdated", chatUUID, messageUUID, newContent);
+        }
+
         public async Task EditChatName(string chatUUID, string newName)
         {
             await Clients.Group(chatUUID).SendAsync("NewChatName", chatUUID, newName);
