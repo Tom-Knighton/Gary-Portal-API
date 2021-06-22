@@ -271,6 +271,7 @@ namespace GaryPortalAPI.Services
             message.User = null;
             message.ReplyingToDTO = message.ReplyingTo.ConvertToReplyDTO();
             message.ReplyingTo = null;
+            await _context.SaveChangesAsync();
             return message;
         }
 
