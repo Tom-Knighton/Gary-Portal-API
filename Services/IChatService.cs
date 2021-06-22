@@ -154,13 +154,21 @@ namespace GaryPortalAPI.Services
 
         public async Task<ChatMessage> GetLastMessageForChat(string chatUUID, CancellationToken ct = default)
         {
-            return await _context.ChatMessages
+            ChatMessage msg =  await _context.ChatMessages
                 .AsNoTracking()
                 .Where(cm => cm.ChatUUID == chatUUID && !cm.MessageIsDeleted)
                 .OrderByDescending(cm => cm.MessageCreatedAt)
                 .Include(cm => cm.User)
+                .Include(cm => cm.ReplyingTo)
+                    .ThenInclude(r => r.User)
                 .Select(cm => new ChatMessage { MessageContent = cm.MessageContent, MessageCreatedAt = cm.MessageCreatedAt, MessageTypeId = cm.MessageTypeId, UserDTO = cm.User.ConvertToDTO() })
                 .FirstOrDefaultAsync(ct);
+
+            msg.UserDTO = msg.User.ConvertToDTO();
+            msg.User = null;
+            msg.ReplyingToDTO = msg.ReplyingTo.ConvertToReplyDTO();
+            msg.ReplyingTo = null;
+            return msg;
         }
 
         public async Task<ChatMessage> GetMessageByIdAsync(string messageUUID, CancellationToken ct = default)
@@ -168,9 +176,13 @@ namespace GaryPortalAPI.Services
             ChatMessage msg = await _context.ChatMessages
                 .AsNoTracking()
                 .Include(cm => cm.User)
+                .Include(cm => cm.ReplyingTo)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(cm => cm.ChatMessageUUID == messageUUID, cancellationToken: ct);
             msg.UserDTO = msg.User.ConvertToDTO();
             msg.User = null;
+            msg.ReplyingToDTO = msg.ReplyingTo.ConvertToReplyDTO();
+            msg.ReplyingTo = null;
             return msg;
         }
 
@@ -253,6 +265,8 @@ namespace GaryPortalAPI.Services
             ChatMessage message = await _context.ChatMessages
                 .AsNoTracking()
                 .Include(cm => cm.User)
+                .Include(cm => cm.ReplyingTo)
+                    .ThenInclude(cr => cr.User)
                 .Where(cm => cm.ChatMessageUUID == messageUUID)
                 .FirstOrDefaultAsync(ct);
             if (message == null)
@@ -261,6 +275,8 @@ namespace GaryPortalAPI.Services
             }
 
             message.MessageContent = newMessage;
+            message.UserDTO = message.User.ConvertToDTO();
+            message.User = null;
             message.UserDTO = message.User.ConvertToDTO();
             message.User = null;
             return message;
