@@ -193,11 +193,15 @@ namespace GaryPortalAPI.Services
                 .Where(cm => cm.ChatUUID == chatUUID && !cm.MessageIsDeleted && fromDate >= cm.MessageCreatedAt)
                 .OrderByDescending(cm => cm.MessageCreatedAt)
                 .Take(limit)
+                .Include(cm => cm.ReplyingTo)
+                    .ThenInclude(cr => cr.User)
                 .ToListAsync(ct);
 
             foreach (ChatMessage msg in chatMessages)
             {
                 msg.UserDTO = msg.User.ConvertToDTO();
+                msg.ReplyingToDTO = msg.ReplyingTo?.ConvertToReplyDTO() ?? null;
+                msg.ReplyingTo = null;
                 msg.User = null;
             }
             return chatMessages;
