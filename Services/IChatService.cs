@@ -269,8 +269,8 @@ namespace GaryPortalAPI.Services
             message.MessageContent = newMessage;
             message.UserDTO = message.User.ConvertToDTO();
             message.User = null;
-            message.UserDTO = message.User.ConvertToDTO();
-            message.User = null;
+            message.ReplyingToDTO = message.ReplyingTo.ConvertToReplyDTO();
+            message.ReplyingTo = null;
             return message;
         }
 
