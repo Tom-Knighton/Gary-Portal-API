@@ -173,7 +173,7 @@ namespace GaryPortalAPI.Services
                 .FirstOrDefaultAsync(cm => cm.ChatMessageUUID == messageUUID, cancellationToken: ct);
             msg.UserDTO = msg.User.ConvertToDTO();
             msg.User = null;
-            msg.ReplyingToDTO = msg.ReplyingTo.ConvertToReplyDTO();
+            msg.ReplyingToDTO = msg.ReplyingTo?.ConvertToReplyDTO() ?? null;
             msg.ReplyingTo = null;
             return msg;
         }
