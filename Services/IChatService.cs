@@ -31,6 +31,7 @@ namespace GaryPortalAPI.Services
         Task RemoveFromChatAsync(string userUUID, string chatUUID, CancellationToken ct = default);
 
         Task<ChatMessage> AddMessageToChatAsync(ChatMessage msg, string chatUUID, CancellationToken ct = default);
+        Task<ChatMessage> EditMessageAsync(string messageUUID, string newMessage, CancellationToken ct = default);
         Task<bool> RemoveMessageAsync(string messageUUID, CancellationToken ct = default);
         Task<string> UploadChatAttachmentAsync(IFormFile file, string chatUUID, CancellationToken ct = default);
 
@@ -154,13 +155,13 @@ namespace GaryPortalAPI.Services
 
         public async Task<ChatMessage> GetLastMessageForChat(string chatUUID, CancellationToken ct = default)
         {
-            return await _context.ChatMessages
+            ChatMessage msg =  await _context.ChatMessages
                 .AsNoTracking()
                 .Where(cm => cm.ChatUUID == chatUUID && !cm.MessageIsDeleted)
                 .OrderByDescending(cm => cm.MessageCreatedAt)
-                .Include(cm => cm.User)
-                .Select(cm => new ChatMessage{ MessageContent = cm.MessageContent, MessageCreatedAt = cm.MessageCreatedAt, MessageTypeId = cm.MessageTypeId, UserDTO = cm.User.ConvertToDTO() })
+                .Select(cm => new ChatMessage { MessageContent = cm.MessageContent, MessageCreatedAt = cm.MessageCreatedAt, MessageTypeId = cm.MessageTypeId, UserDTO = cm.User.ConvertToDTO() })
                 .FirstOrDefaultAsync(ct);
+            return msg;
         }
 
         public async Task<ChatMessage> GetMessageByIdAsync(string messageUUID, CancellationToken ct = default)
@@ -168,9 +169,13 @@ namespace GaryPortalAPI.Services
             ChatMessage msg = await _context.ChatMessages
                 .AsNoTracking()
                 .Include(cm => cm.User)
+                .Include(cm => cm.ReplyingTo)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(cm => cm.ChatMessageUUID == messageUUID, cancellationToken: ct);
             msg.UserDTO = msg.User.ConvertToDTO();
             msg.User = null;
+            msg.ReplyingToDTO = msg.ReplyingTo?.ConvertToReplyDTO() ?? null;
+            msg.ReplyingTo = null;
             return msg;
         }
 
@@ -211,7 +216,6 @@ namespace GaryPortalAPI.Services
 
         public async Task<ChatMember> AddUserToChatAsync(string userUUID, string chatUUID, CancellationToken ct = default)
         {
-            Console.WriteLine(userUUID);
             ChatMember member = new ChatMember
             {
                 ChatUUID = chatUUID,
@@ -247,7 +251,31 @@ namespace GaryPortalAPI.Services
             msg.MessageContent = Regex.Replace(msg.MessageContent, "((https?://)?www\\.[^\\s]+)", "[$1]($1)");
             await _context.ChatMessages.AddAsync(msg, ct);
             await _context.SaveChangesAsync(ct);
-            return msg;
+            return await GetMessageByIdAsync(msg.ChatMessageUUID, ct);
+        }
+
+        public async Task<ChatMessage> EditMessageAsync(string messageUUID, string newMessage, CancellationToken ct = default)
+        {
+            ChatMessage message = await _context.ChatMessages
+                .AsNoTracking()
+                .Include(cm => cm.User)
+                .Include(cm => cm.ReplyingTo)
+                    .ThenInclude(cr => cr.User)
+                .Where(cm => cm.ChatMessageUUID == messageUUID)
+                .FirstOrDefaultAsync(ct);
+            if (message == null)
+            {
+                return null;
+            }
+
+            message.MessageContent = newMessage;
+            message.UserDTO = message.User.ConvertToDTO();
+            message.User = null;
+            message.ReplyingToDTO = message.ReplyingTo?.ConvertToReplyDTO() ?? null;
+            message.ReplyingTo = null;
+            _context.Update(message);
+            await _context.SaveChangesAsync(ct);
+            return message;
         }
 
         public async Task<bool> RemoveMessageAsync(string messageUUID, CancellationToken ct = default)

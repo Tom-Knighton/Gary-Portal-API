@@ -110,6 +110,15 @@ namespace GaryPortalAPI.Controllers
             return Ok(await _chatService.AddMessageToChatAsync(message, chatUUID, ct));
         }
 
+        [HttpPut("Messages/Update/{messageUUID}")]
+        [Produces(typeof(ChatMessage))]
+        public async Task<IActionResult> EditMessageAsync(string messageUUID, [FromBody] string newContent, CancellationToken ct = default)
+        {
+            if (!AuthenticationUtilities.IsAllowedChat(User))
+                return BadRequest("User has been banned from Chat");
+            return Ok(await _chatService.EditMessageAsync(messageUUID, newContent, ct));
+        }
+
         [HttpPut("Messages/Delete/{messageUUID}")]
         public async Task<IActionResult> DeleteMessage(string messageUUID, CancellationToken ct = default)
         {
