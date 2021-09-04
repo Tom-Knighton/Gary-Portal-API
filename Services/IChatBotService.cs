@@ -131,7 +131,7 @@ namespace GaryPortalAPI.Services
         {
             User user = await _userService.GetByIdAsync(uuid);
             return $"{user.UserFullName}:\nTeam: {user.UserTeam.Team.TeamName}\nAmigo Rank: {user.UserRanks.AmigoRank.RankName}\nPositive Rank: {user.UserRanks.PositivityRank.RankName}" +
-                $"\nStaff: {(user.UserIsStaff ? "Yes": "No")}\nAdmin: {(user.UserIsAdmin ? "Yes" : "No")}";
+                $"\nStaff: {(user.HasUserFlag("Role.Staff") ? "Yes": "No")}\nAdmin: {(user.HasUserFlag("Role.Admin") ? "Yes" : "No")}";
         }
 
         private static string HandleMock(string input)
@@ -191,7 +191,7 @@ namespace GaryPortalAPI.Services
         private async Task<string> HandleGlobalBan(string input, string uuid)
         {
             User user = await _userService.GetByIdAsync(uuid);
-            if (!user.UserIsAdmin)
+            if (!user.HasUserFlag("Role.Admin"))
             {
                 return "Error: Only Admin+ Can use this command here, if you are a staff member, you can also use the Staff Room in the app to manager user's bans";
             }
@@ -218,7 +218,7 @@ namespace GaryPortalAPI.Services
         private async Task<string> HandleChatBan(string input, string uuid)
         {
             User user = await _userService.GetByIdAsync(uuid);
-            if (!user.UserIsAdmin)
+            if (!user.HasUserFlag("Role.Admin"))
             {
                 return "Error: Only Admin+ Can use this command here, if you are a staff member, you can also use the Staff Room in the app to manager user's bans";
             }
@@ -245,7 +245,7 @@ namespace GaryPortalAPI.Services
         private async Task<string> HandleFeedBan(string input, string uuid)
         {
             User user = await _userService.GetByIdAsync(uuid);
-            if (!user.UserIsAdmin)
+            if (!user.HasUserFlag("Role.Admin"))
             {
                 return "Error: Only Admin+ Can use this command here, if you are a staff member, you can also use the Staff Room in the app to manager user's bans";
             }

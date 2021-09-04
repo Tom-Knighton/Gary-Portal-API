@@ -37,7 +37,6 @@ namespace GaryPortalAPI.Services.Authentication
             _userService = userService;
         }
 
-
         public async void Dispose()
         {
             await _context.DisposeAsync();
@@ -45,7 +44,7 @@ namespace GaryPortalAPI.Services.Authentication
 
         public async Task<string> CreateAuthTokenForUserAsync(string userUUID)
         {
-            User user = await _context.Users.FindAsync(userUUID);
+            User user = await _context.Users.Include(u => u.UserFlags).ThenInclude(uf => uf.Flag).FirstOrDefaultAsync(u => u.UserUUID == userUUID);
             if (user == null)
                 return null;
 
@@ -55,7 +54,7 @@ namespace GaryPortalAPI.Services.Authentication
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             byte[] secretKey = Encoding.ASCII.GetBytes(_apiSettings.Secret);
             List<Claim> claims = new List<Claim> { new Claim(ClaimTypes.Name, userUUID) };
-            claims.Add(new Claim(ClaimTypes.Role, user.UserIsAdmin ? "admin" : user.UserIsStaff ? "staff" : "user"));
+            claims.Add(new Claim(ClaimTypes.Role, user.HasUserFlag("Role.Admin") ? "admin" : user.HasUserFlag("Role.Staff") ? "staff" : "user"));
             if (chatBan == null) claims.Add(new Claim(ClaimTypes.UserData, "chatAllowed"));
             if (feedBan == null) claims.Add(new Claim(ClaimTypes.UserData, "feedAllowed"));
 

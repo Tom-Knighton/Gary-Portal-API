@@ -97,8 +97,6 @@ namespace GaryPortalAPI.Controllers
             return Ok(await _userRepository.UpdateUserDetailsAsync(uuid, details, ct));
         }
 
-
-
         [HttpPost("UpdateProfilePictureForUser/{uuid}")]
         public async Task<IActionResult> UpdateProfilePictureForUser(string uuid, CancellationToken ct = default)
         {
@@ -151,6 +149,18 @@ namespace GaryPortalAPI.Controllers
                 await _userRepository.PostNotification(token, Notification.CreateNotification(new APSAlert { body = content }));
             }
             return Ok();
+        }
+
+        [HttpPut("SetUserFlag/{userUUID}")]
+        public async Task<IActionResult> SetUserFlag(string userUUID, string flagName, bool enabled = true, CancellationToken ct = default)
+        {
+            if (string.IsNullOrEmpty(userUUID) || string.IsNullOrEmpty(flagName))
+            {
+                return BadRequest();
+            }
+
+            UserFlag userFlag = await _userRepository.SetUserFlag(userUUID, flagName, enabled, ct);
+            return userFlag != null ? Ok(userFlag) : BadRequest("Invalid userUUID or flag name");
         }
     }
 }
