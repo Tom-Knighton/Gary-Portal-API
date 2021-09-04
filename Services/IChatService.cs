@@ -292,7 +292,6 @@ namespace GaryPortalAPI.Services
             if (file == null) return null;
 
             string uuid = Guid.NewGuid().ToString();
-            Directory.CreateDirectory($"/var/www/cdn/GaryPortal/Chat/{chatUUID}/Attachments/");
             string newFileName = file.FileName.Replace(Path.GetFileNameWithoutExtension(file.FileName), uuid);
             await _cdnService.UploadChatAttachment(newFileName, file, chatUUID, ct);           
             return $"https://cdn.tomk.online/GaryPortal/Chat/{chatUUID}/Attachments/{newFileName}";

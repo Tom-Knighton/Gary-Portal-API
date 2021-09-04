@@ -36,6 +36,16 @@ namespace GaryPortalAPI
                     option.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
                 });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.WithOrigins("https://localhost:3000", "localhost:3000", "http://localhost:3000");
+                    builder.AllowCredentials();
+                    builder.AllowAnyHeader();
+                });
+            });
+
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSwaggerGen();
 
@@ -102,6 +112,8 @@ namespace GaryPortalAPI
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseCors("CorsPolicy");
 
             app.UseRouting();
 

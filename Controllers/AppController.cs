@@ -40,11 +40,10 @@ namespace GaryPortalAPI.Controllers
             return Ok(await _appService.GetCommandmentsAsync(ct));
         }
 
-        [AllowAnonymous]
-        [HttpGet("TestDocker")]
-        public async Task<IActionResult> TestDocker()
+        [HttpGet("Flags")]
+        public async Task<IActionResult> GetAllFlags(CancellationToken ct = default)
         {
-            return Ok(10);
+            return Ok(await _appService.GetAllFlagsAsync(ct));
         }
     }
 }
