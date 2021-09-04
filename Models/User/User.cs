@@ -55,6 +55,13 @@ namespace GaryPortalAPI.Models
         public DateTime UserDateOfBirth { get; set; }
         public bool IsDeleted { get; set; }
 
+        [Obsolete("Please use the UserFlag system instead (HasUserFlag())")]
+        public bool UserIsStaff => HasUserFlag("Role.Staff");
+        [Obsolete("Please use the UserFlag system instead (HasUserFlag())")]
+        public bool UserIsAdmin => HasUserFlag("Role.Admin");
+        [Obsolete("Please use the UserFlag system instead (HasUserFlag())")]
+        public bool IsQueued => HasUserFlag("IsInQueue");
+
         public UserAuthenticationTokens UserAuthTokens { get; set; }
 
         public virtual UserAuthentication UserAuthentication { get; set; }

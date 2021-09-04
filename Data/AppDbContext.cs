@@ -131,6 +131,10 @@ public class AppDbContext : DbContext
                 .HasForeignKey(uf => uf.UserUUID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            entity.Ignore(u => u.UserIsStaff);
+            entity.Ignore(u => u.UserIsAdmin);
+            entity.Ignore(u => u.IsQueued);
         });
 
         modelBuilder.Entity<UserAuthentication>(entity =>
