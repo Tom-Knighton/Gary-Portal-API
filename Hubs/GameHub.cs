@@ -39,7 +39,7 @@ namespace GaryPortalAPI.Hubs
 
             for (int col = 0; col < game.GameMatrix.GetLength(0); col++)
                 for (int row = 0; row < game.GameMatrix.GetLength(1); row++)
-                    game.GameMatrix[col, row] = new TTGCell();
+                    game.GameMatrix[col, row] = new TTGCell { Content = "", Id = $"{col},{row}"};
 
             Random random = new Random();
             string gameCode = random.Next(0, 1000000).ToString("D6");
@@ -110,14 +110,17 @@ namespace GaryPortalAPI.Hubs
             await Clients.Group(code).SendAsync("TTG_StartGame");
         }
 
-        public async Task TTGMakeMove(string code, string uuid, int row, int col)
+        public async Task TTGMakeMove(string code, string uuid, string cellId)
         {
             TicTacGaryGame game = _games.FirstOrDefault(g => g.GameCode == code);
             if (game == null)
                 return;
 
-            string symbol = uuid == game.FirstPlayerUUID ? "X" : "O";
-            game.GameMatrix[row, col].Content = symbol;
+            string[] cellIdSplit = cellId.Split(",");
+            int col = Convert.ToInt32(cellIdSplit[0]);
+            int row = Convert.ToInt32(cellIdSplit[1]);
+            string symbol = uuid == game.FirstPlayerUUID ? "X" : "O"; 
+            game.GameMatrix[col, row].Content = symbol;
 
             int winSize = game.GameSize == 3 ? 3 : 4;
 
@@ -145,7 +148,11 @@ namespace GaryPortalAPI.Hubs
 
             if (hasWonDiagonal || hasWonHorizontal || hasWonHorizontal)
             {
-                Array.Clear(game.GameMatrix, 0, game.GameMatrix.Length);
+                Console.WriteLine("GAME WON!!!!!");
+                for (int newCol = 0; col < game.GameMatrix.GetLength(0); newCol++)
+                    for (int newRow = 0; row < game.GameMatrix.GetLength(1); newRow++)
+                        game.GameMatrix[col, row] = new TTGCell { Content = "", Id = $"{col},{row}" };
+
                 if (uuid == game.FirstPlayerUUID)
                 {
                     game.PlayerOneWins += 1;
@@ -154,13 +161,13 @@ namespace GaryPortalAPI.Hubs
                     game.PlayerTwoWins += 1;
                 }
                 game.CurrentUUIDTurn = uuid == game.FirstPlayerUUID ? game.FirstPlayerUUID : game.SecondPlayerUUID;
-                await Clients.Group(code).SendAsync("TTG_MovePlayed", uuid, row, col, symbol);
+                await Clients.Group(code).SendAsync("TTG_MovePlayed", uuid, cellId, symbol);
                 await Clients.Group(code).SendAsync("TTG_GameWon", uuid);
             }
             else
             {
                 game.CurrentUUIDTurn = game.CurrentUUIDTurn == game.FirstPlayerUUID ? game.SecondPlayerUUID : game.FirstPlayerUUID;
-                await Clients.Group(code).SendAsync("TTG_MovePlayed", uuid, row, col, symbol);
+                await Clients.Group(code).SendAsync("TTG_MovePlayed", uuid, cellId, symbol);
             }
         }
 
