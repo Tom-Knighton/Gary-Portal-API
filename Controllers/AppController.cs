@@ -39,5 +39,11 @@ namespace GaryPortalAPI.Controllers
         {
             return Ok(await _appService.GetCommandmentsAsync(ct));
         }
+
+        [HttpGet("Flags")]
+        public async Task<IActionResult> GetAllFlags(CancellationToken ct = default)
+        {
+            return Ok(await _appService.GetAllFlagsAsync(ct));
+        }
     }
 }

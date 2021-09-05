@@ -29,7 +29,7 @@ namespace GaryPortalAPI.Controllers
 
         [HttpGet]
         [Produces(typeof(ICollection<FeedPost>))]
-        public async Task<IActionResult> GetFeed(long startfrom, int limit = 10, int teamId = 0, CancellationToken ct = default)
+        public async Task<IActionResult> GetFeed(long startfrom, int limit = 10, int teamId = 0, bool includeComments = false, CancellationToken ct = default)
         {
             if (!AuthenticationUtilities.IsAllowedFeed(User))
                 return BadRequest("User has been banned from Feed");
@@ -37,7 +37,7 @@ namespace GaryPortalAPI.Controllers
             {
                 startfrom = DateTime.UtcNow.Millisecond;
             }
-            return Ok(await _feedService.GetAllAsync(startfrom, teamId, limit, ct));
+            return Ok(await _feedService.GetAllAsync(startfrom, teamId, limit, includeComments, ct));
         }
 
         [HttpGet("GetPostDTOs")]

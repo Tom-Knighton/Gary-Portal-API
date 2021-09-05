@@ -77,6 +77,16 @@ namespace GaryPortalAPI
                 options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.WithOrigins("https://localhost:3000", "localhost:3000", "http://localhost:3000");
+                    builder.AllowCredentials();
+                    builder.AllowAnyHeader();
+                });
+            });
+
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSwaggerGen();
 
@@ -178,6 +188,8 @@ namespace GaryPortalAPI
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseCors("CorsPolicy");
 
             app.UseRouting();
 

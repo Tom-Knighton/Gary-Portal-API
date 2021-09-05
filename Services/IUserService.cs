@@ -46,7 +46,7 @@ namespace GaryPortalAPI.Services
         Task AddAPNS(string uuid, string apns);
         Task<ICollection<string>> GetAPNSFromUUIDAsync(string uuid, CancellationToken ct = default);
         Task PostNotification(string apns, Notification notification);
-
+        Task<UserFlag> SetUserFlag(string userUUID, string flagName, bool enabled, CancellationToken ct = default);
 
     }
 
@@ -83,7 +83,9 @@ namespace GaryPortalAPI.Services
                     .ThenInclude(ut => ut.Team)
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Where(u => !u.IsDeleted && (teamId == 0 || u.UserTeam.TeamId == teamId) && (includeQueue || !u.IsQueued))
+                .Include(u => u.UserFlags)
+                    .ThenInclude(uf => uf.Flag)
+                .Where(u => !u.IsDeleted && (teamId == 0 || u.UserTeam.TeamId == teamId) && (includeQueue || !u.HasUserFlag("IsInQueue")))
                 .ToListAsync(ct);
         }
 
@@ -101,7 +103,9 @@ namespace GaryPortalAPI.Services
                     .ThenInclude(ut => ut.Team)
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Where(u => !u.IsDeleted && u.IsQueued)
+                .Include(u => u.UserFlags)
+                    .ThenInclude(uf => uf.Flag)
+                .Where(u => !u.IsDeleted && u.HasUserFlag("IsInQueue"))
                 .ToListAsync(ct);
         }
 
@@ -120,6 +124,8 @@ namespace GaryPortalAPI.Services
                 .Include(u => u.BlockedUsers.Where(bu => bu.IsBlocked))
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
+                .Include(u => u.UserFlags)
+                    .ThenInclude(uf => uf.Flag)
                 .FirstOrDefaultAsync(u => u.UserUUID == userUUID, ct);
         }
 
@@ -210,11 +216,14 @@ namespace GaryPortalAPI.Services
             user.UserName = details.UserName.ToLower();
             user.UserFullName = details.FullName;
             user.UserProfileImageUrl = details.ProfilePictureUrl;
-            user.NotificationsMuted = details.NotificationsMuted;
+            if (user.HasUserFlag("NotificationsMuted") != details.NotificationsMuted)
+            {
+                await SetUserFlag(uuid, "NotificationsMuted", details.NotificationsMuted);
+            }
             _context.Update(user);
 
             await _context.SaveChangesAsync(ct);
-            return user;
+            return await GetByIdAsync(uuid, ct);
         }
 
         public async Task UpdateBioForUserAsync(string uuid, string bio, CancellationToken ct = default)
@@ -233,9 +242,9 @@ namespace GaryPortalAPI.Services
             user.UserPoints.AmigoPoints = details.AmigoPoints;
             user.UserPoints.PositivityPoints = details.PositivePoints;
 
-            if (user.IsQueued != details.IsQueued)
+            if (user.HasUserFlag("IsInQueue") != details.IsQueued)
             {
-                user.IsQueued = details.IsQueued;
+                await SetUserFlag(uuid, "IsInQueue", details.IsQueued, ct);
                 if (details.IsQueued == false)
                 {
                     ICollection<string> apns = await GetAPNSFromUUIDAsync(user.UserUUID);
@@ -304,12 +313,8 @@ namespace GaryPortalAPI.Services
                     UserSpanishName = "",
                     UserStanding = "",
                     UserProfileImageUrl = "",
-                    UserIsAdmin = false,
-                    UserIsStaff = false,
-                    IsQueued = true,
                     UserGender = creatingUser.UserGender,
                     UserDateOfBirth = creatingUser.UserDOB,
-                    NotificationsMuted = false,
                     UserAuthentication = new UserAuthentication
                     {
                         UserEmail = creatingUser.UserEmail,
@@ -334,6 +339,7 @@ namespace GaryPortalAPI.Services
                 await _context.Users.AddAsync(newUser);
                 await _context.SaveChangesAsync();
                 User user = await GetByIdAsync(newUser.UserUUID, ct);
+                user.UserFlags.Add(await SetUserFlag(user.UserUUID, "IsInQueue", true, ct));
                 return user;
             }
 
@@ -457,7 +463,13 @@ namespace GaryPortalAPI.Services
 
         public async Task<ICollection<string>> GetAPNSFromUUIDAsync(string uuid, CancellationToken ct = default)
         {
-            if (await _context.Users.Where(u => u.UserUUID == uuid).Select(u => u.NotificationsMuted == false).FirstOrDefaultAsync(ct))
+            if (await _context.Users
+                .Include(u => u.UserFlags)
+                    .ThenInclude(uf => uf.Flag)
+                .Where(u => u.UserUUID == uuid)
+                .Select(u => u.HasUserFlag("NotificationsMuted") == false)
+                .FirstOrDefaultAsync(ct)
+            )
             {
                 return await _context.UserAPNS.Where(u => u.UserUUID == uuid).Select(u => u.APNSToken).ToListAsync(ct);
             }
@@ -469,6 +481,37 @@ namespace GaryPortalAPI.Services
             ApnSettings apnSettings = _apiSettings.APNSSettings.ConvertToAPNSettings();
             var apn = new ApnSender(apnSettings, new System.Net.Http.HttpClient());
             await apn.SendAsync(notification, apns);
+        }
+
+        public async Task<UserFlag> SetUserFlag(string userUUID, string flagName, bool enabled, CancellationToken ct = default)
+        {
+            User user = await _context.Users.FindAsync(userUUID);
+            Flag flag = await _context.Flags.FirstOrDefaultAsync(f => f.FlagName.ToLower() == flagName.ToLower());
+            if (user == null || flag == null)
+            {
+                return null;
+            }
+
+            bool flagExists = _context.UserFlags.Any(uf => uf.UserUUID == userUUID && uf.FlagId == flag.FlagId);
+            UserFlag userFlag = new UserFlag
+            {
+                Flag = flag,
+                FlagId = flag.FlagId,
+                FlagEnabled = enabled,
+                UserUUID = userUUID
+            };
+
+            if (flagExists)
+            {
+                _context.Update(userFlag);
+            }
+            else
+            {
+                _context.Add(userFlag);
+            }
+
+            await _context.SaveChangesAsync();
+            return userFlag;
         }
     }
 }

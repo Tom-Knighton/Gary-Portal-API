@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GaryPortalAPI.Models;
 using GaryPortalAPI.Models.Feed;
 using Newtonsoft.Json;
@@ -49,14 +50,17 @@ namespace GaryPortalAPI.Models
         public string UserQuote { get; set; }
         public string UserBio { get; set; }
         public string UserGender { get; set; }
-        public bool NotificationsMuted { get; set; }
-        public bool UserIsStaff { get; set; }
-        public bool UserIsAdmin { get; set; }
         public string UserStanding { get; set; }
-        public bool IsQueued { get; set; }
         public DateTime UserCreatedAt { get; set; }
         public DateTime UserDateOfBirth { get; set; }
         public bool IsDeleted { get; set; }
+
+        [Obsolete("Please use the UserFlag system instead (HasUserFlag())")]
+        public bool UserIsStaff => HasUserFlag("Role.Staff");
+        [Obsolete("Please use the UserFlag system instead (HasUserFlag())")]
+        public bool UserIsAdmin => HasUserFlag("Role.Admin");
+        [Obsolete("Please use the UserFlag system instead (HasUserFlag())")]
+        public bool IsQueued => HasUserFlag("IsInQueue");
 
         public UserAuthenticationTokens UserAuthTokens { get; set; }
 
@@ -77,17 +81,41 @@ namespace GaryPortalAPI.Models
 
         public virtual ICollection<UserAPNS> APNSTokens { get; set; }
 
+        public virtual ICollection<UserFlag> UserFlags { get; set; }
+
         public virtual UserDTO ConvertToDTO()
         {
             return new UserDTO
             {
                 UserUUID = UserUUID,
                 UserFullName = UserFullName,
-                UserIsAdmin = UserIsAdmin,
-                UserIsStaff = UserIsStaff,
+                UserIsAdmin = HasUserFlag("Role.Admin"),
+                UserIsStaff = HasUserFlag("Role.Staff"),
                 UserProfileImageUrl = UserProfileImageUrl,
             };
         }
+
+        public bool HasUserFlag(string flagName)
+        {
+            return UserFlags.Any(uf => uf.Flag.FlagName.ToLower() == flagName.ToLower() && uf.FlagEnabled && !uf.Flag.FlagIsDeleted);
+        }
+    }
+
+    public class Flag
+    {
+        public int FlagId { get; set; }
+        public string FlagName { get; set; }
+        public int FlagAccessLevel { get; set; }
+        public bool FlagIsDeleted { get; set; }
+    }
+
+    public class UserFlag
+    {
+        public string UserUUID { get; set; }
+        public int FlagId { get; set; }
+        public bool FlagEnabled { get; set; }
+
+        public virtual Flag Flag { get; set; }
     }
 
     public class UserTeam
@@ -97,7 +125,6 @@ namespace GaryPortalAPI.Models
 
         public virtual Team Team { get; set; }
         public virtual User User { get; set; }
-
     }
 
     public class UserRanks

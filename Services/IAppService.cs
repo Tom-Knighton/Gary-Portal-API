@@ -13,6 +13,7 @@ namespace GaryPortalAPI.Services
         Task<ICollection<Sticker>> GetStickersAsync();
         Task<ICollection<Event>> GetEventsAsync(int teamId, CancellationToken ct = default);
         Task<ICollection<Commandment>> GetCommandmentsAsync(CancellationToken ct = default);
+        Task<ICollection<Flag>> GetAllFlagsAsync(CancellationToken ct = default);
     }
 
     public class AppService : IAppService
@@ -51,6 +52,15 @@ namespace GaryPortalAPI.Services
                 .AsNoTracking()
                 .Where(c => !c.CommandmentIsDeleted)
                 .ToListAsync(ct);
+        }
+
+        public async Task<ICollection<Flag>> GetAllFlagsAsync(CancellationToken ct = default)
+        {
+            return await _context
+                .Flags
+                .AsNoTracking()
+                .Where(c => !c.FlagIsDeleted)
+                .ToListAsync();
         }
     }
 }

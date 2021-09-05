@@ -17,7 +17,7 @@ namespace GaryPortalAPI.Services
 {
     public interface IFeedService : IDisposable
     {
-        Task<ICollection<FeedPost>> GetAllAsync(long startfrom, int teamId = 0, int limit = 10, CancellationToken ct = default);
+        Task<ICollection<FeedPost>> GetAllAsync(long startfrom, int teamId = 0, int limit = 10, bool includeComments = false, CancellationToken ct = default);
         Task<ICollection<FeedPostDTO>> GetAllDTOPostsForUserAsync(string uuid, CancellationToken ct = default);
         Task<FeedPost> GetByIdAsync(int feedPostId, CancellationToken ct = default);
         Task ToggleLikeForPostAsync(int feedPostId, string userUUID, CancellationToken ct = default);
@@ -60,26 +60,30 @@ namespace GaryPortalAPI.Services
             await _context.DisposeAsync();
         }
 
-        public async Task<ICollection<FeedPost>> GetAllAsync(long startfrom, int teamId = 0, int limit = 10, CancellationToken ct = default)
+        public async Task<ICollection<FeedPost>> GetAllAsync(long startfrom, int teamId = 0, int limit = 10, bool includeComments = false, CancellationToken ct = default)
         {
             DateTime fromDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(startfrom);
             ICollection<FeedPost> posts = await _context.FeedPosts
                 .AsNoTracking()
                 .Include(fp => fp.Likes.Where(fl => fl.IsLiked))
                 .Include(fp => fp.Poster)
-                .Include(fp => fp.PostTeam)
                 .Include(fp => fp.Comments.Where(fc => !fc.IsDeleted))
+                .Include(fp => fp.PostTeam)
                 .Include(fp => ((FeedPollPost)fp).PollAnswers)
                     .ThenInclude(fpa => fpa.Votes.Where(fpv => !fpv.IsDeleted))
                 .Where(fp => fp.PostCreatedAt <= fromDate && !fp.IsDeleted && (teamId == 0 || fp.PostIsGlobal || fp.TeamId == teamId))
                 .OrderByDescending(fp => fp.PostCreatedAt)
-                .Take(10)
+                .Take(limit)
                 .ToListAsync(ct);
 
             foreach (FeedPost post in posts)
             {
                 post.PosterDTO = post.Poster.ConvertToDTO();
                 post.Poster = null;
+                if (includeComments)
+                {
+                    post.Comments = await GetCommentsForPostAsync(post.PostId, ct);
+                }
             }
             return posts;
         }

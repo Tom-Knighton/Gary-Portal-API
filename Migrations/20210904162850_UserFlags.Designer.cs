@@ -2,14 +2,16 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GaryPortalAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210904162850_UserFlags")]
+    partial class UserFlags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -453,33 +455,6 @@ namespace GaryPortalAPI.Migrations
                     b.HasKey("FlagId");
 
                     b.ToTable("Flags");
-                });
-
-            modelBuilder.Entity("GaryPortalAPI.Models.Games.GameType", b =>
-                {
-                    b.Property<string>("GameUUID")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("GameCoverUrl")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("GameDescription")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("GameIsEnabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("GameName")
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("GameTeamId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GameUUID");
-
-                    b.HasIndex("GameTeamId");
-
-                    b.ToTable("GameTypes");
                 });
 
             modelBuilder.Entity("GaryPortalAPI.Models.Rank", b =>
@@ -1113,16 +1088,6 @@ namespace GaryPortalAPI.Migrations
                     b.Navigation("ReportedPost");
 
                     b.Navigation("Reporter");
-                });
-
-            modelBuilder.Entity("GaryPortalAPI.Models.Games.GameType", b =>
-                {
-                    b.HasOne("GaryPortalAPI.Models.Team", "GameTeam")
-                        .WithMany()
-                        .HasForeignKey("GameTeamId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("GameTeam");
                 });
 
             modelBuilder.Entity("GaryPortalAPI.Models.StaffRoomAnnouncement", b =>

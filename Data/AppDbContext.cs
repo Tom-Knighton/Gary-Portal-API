@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Rank> Ranks { get; set; }
     public DbSet<Team> Teams { get; set; }
+    public DbSet<Flag> Flags { get; set; }
 
     public DbSet<UserAuthentication> UserAuthentications { get; set; }
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
@@ -21,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<UserTeam> UserTeams { get; set; }
     public DbSet<UserBlock> UserBlocks { get; set; }
     public DbSet<UserAPNS> UserAPNS { get; set; }
+    public DbSet<UserFlag> UserFlags { get; set; }
 
     public DbSet<UserAuthenticationConfirmation> UserAuthConfirmations { get; set; }
     public DbSet<UserPassResetToken> UserPassResetTokens { get; set; }
@@ -125,6 +127,17 @@ public class AppDbContext : DbContext
                 .HasForeignKey(apns => apns.UserUUID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            entity
+                .HasMany(u => u.UserFlags)
+                .WithOne()
+                .HasForeignKey(uf => uf.UserUUID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            entity.Ignore(u => u.UserIsStaff);
+            entity.Ignore(u => u.UserIsAdmin);
+            entity.Ignore(u => u.IsQueued);
         });
 
         modelBuilder.Entity<UserAuthentication>(entity =>
@@ -205,6 +218,24 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
             entity.Ignore(ub => ub.BlockedUserDTO);
+        });
+
+        modelBuilder.Entity<Flag>(entity =>
+        {
+            entity.Property(f => f.FlagId)
+                .ValueGeneratedOnAdd();
+            entity.HasKey(f => f.FlagId);
+        });
+
+        modelBuilder.Entity<UserFlag>(entity =>
+        {
+            entity.HasKey(uf => new { uf.FlagId, uf.UserUUID });
+            entity
+                .HasOne(uf => uf.Flag)
+                .WithMany()
+                .HasForeignKey(uf => uf.FlagId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
         });
 
         #endregion User
