@@ -44,7 +44,7 @@ namespace GaryPortalAPI.Services.Authentication
 
         public async Task<string> CreateAuthTokenForUserAsync(string userUUID)
         {
-            User user = await _context.Users.Include(u => u.UserFlags).ThenInclude(uf => uf.Flag).FirstOrDefaultAsync(u => u.UserUUID == userUUID);
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.UserUUID == userUUID);
             if (user == null)
                 return null;
 
