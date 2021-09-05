@@ -77,21 +77,6 @@ namespace GaryPortalAPI
                 options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
 
-            services.AddCors(options =>
-            {
-                options.AddPolicy("CorsPolicy", builder =>
-                {
-                    builder.WithOrigins("https://localhost:3000", "localhost:3000", "http://localhost:3000");
-                    builder.AllowCredentials();
-                    builder.AllowAnyHeader();
-                });
-            });
-
-            services.AddRazorPages().AddRazorRuntimeCompilation();
-            services.AddSwaggerGen();
-
-            services.AddSignalR();
-
             services.AddDbContext<AppDbContext>(o =>
             {
                 o.UseMySql(
@@ -118,40 +103,6 @@ namespace GaryPortalAPI
                         ClockSkew = TimeSpan.Zero
                     };
                 });
-
-
-            services.Configure<ApiSettings>(Configuration.GetSection("AppSettings"));
-            services.AddHttpContextAccessor();
-
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddDbContext<AppDbContext>(o =>
-            {
-                o.UseMySql(
-                        Configuration["AppSettings:Connection"],
-                        new MySqlServerVersion(new Version(8, 0, 21)), // use MariaDbServerVersion for MariaDB
-                        mySqlOptions => mySqlOptions
-                            .CharSetBehavior(CharSetBehavior.NeverAppend))
-                    .EnableSensitiveDataLogging()
-                    .EnableDetailedErrors();
-            });
-
-            services
-                .AddAuthentication(options => options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.SaveToken = true;
-                    options.RequireHttpsMetadata = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidIssuer = Configuration["AppSettings:Issuer"],
-                        ValidAudience = Configuration["AppSettings:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:Secret"])),
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero
-                    };
-                });
-
 
             services.Configure<ApiSettings>(Configuration.GetSection("AppSettings"));
             services.AddHttpContextAccessor();
@@ -188,8 +139,6 @@ namespace GaryPortalAPI
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            app.UseCors("CorsPolicy");
 
             app.UseRouting();
 
