@@ -60,7 +60,7 @@ namespace GaryPortalAPI.Services
                 .Flags
                 .AsNoTracking()
                 .Where(c => !c.FlagIsDeleted)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: ct);
         }
     }
 }
