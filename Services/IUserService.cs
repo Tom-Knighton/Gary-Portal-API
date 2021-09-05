@@ -83,8 +83,6 @@ namespace GaryPortalAPI.Services
                     .ThenInclude(ut => ut.Team)
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Include(u => u.UserFlags)
-                    .ThenInclude(uf => uf.Flag)
                 .Where(u => !u.IsDeleted && (teamId == 0 || u.UserTeam.TeamId == teamId) && (includeQueue || !u.HasUserFlag("IsInQueue")))
                 .ToListAsync(ct);
         }
@@ -103,8 +101,6 @@ namespace GaryPortalAPI.Services
                     .ThenInclude(ut => ut.Team)
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Include(u => u.UserFlags)
-                    .ThenInclude(uf => uf.Flag)
                 .Where(u => !u.IsDeleted && u.HasUserFlag("IsInQueue"))
                 .ToListAsync(ct);
         }
@@ -124,8 +120,6 @@ namespace GaryPortalAPI.Services
                 .Include(u => u.BlockedUsers.Where(bu => bu.IsBlocked))
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Include(u => u.UserFlags)
-                    .ThenInclude(uf => uf.Flag)
                 .FirstOrDefaultAsync(u => u.UserUUID == userUUID, ct);
         }
 
@@ -464,8 +458,6 @@ namespace GaryPortalAPI.Services
         public async Task<ICollection<string>> GetAPNSFromUUIDAsync(string uuid, CancellationToken ct = default)
         {
             if (await _context.Users
-                .Include(u => u.UserFlags)
-                    .ThenInclude(uf => uf.Flag)
                 .Where(u => u.UserUUID == uuid)
                 .Select(u => u.HasUserFlag("NotificationsMuted") == false)
                 .FirstOrDefaultAsync(ct)

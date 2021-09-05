@@ -135,6 +135,8 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
 
+            entity.Navigation(u => u.UserFlags).AutoInclude();
+
             entity.Ignore(u => u.UserIsStaff);
             entity.Ignore(u => u.UserIsAdmin);
             entity.Ignore(u => u.IsQueued);
@@ -236,6 +238,8 @@ public class AppDbContext : DbContext
                 .HasForeignKey(uf => uf.FlagId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            entity.Navigation(uf => uf.Flag).AutoInclude();
         });
 
         #endregion User
