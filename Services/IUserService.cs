@@ -81,7 +81,7 @@ namespace GaryPortalAPI.Services
                     .ThenInclude(ut => ut.Team)
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Where(u => !u.IsDeleted && (teamId == 0 || u.UserTeam.TeamId == teamId) && (includeQueue || !u.HasUserFlag("IsInQueue")))
+                .Where(u => !u.IsDeleted && (teamId == 0 || u.UserTeam.TeamId == teamId) && (includeQueue || !u.UserFlags.Any(uf => uf.Flag.FlagName == "IsInQueue")))
                 .ToListAsync(ct);
         }
 
@@ -99,7 +99,7 @@ namespace GaryPortalAPI.Services
                     .ThenInclude(ut => ut.Team)
                 .Include(u => u.UserBans.Where(ub => ub.BanExpires > DateTime.UtcNow))
                     .ThenInclude(ub => ub.BanType)
-                .Where(u => !u.IsDeleted && u.HasUserFlag("IsInQueue"))
+                .Where(u => !u.IsDeleted && u.UserFlags.Any(uf => uf.Flag.FlagName == "IsInQueue"))
                 .ToListAsync(ct);
         }
 
@@ -441,7 +441,7 @@ namespace GaryPortalAPI.Services
         {
             if (await _context.Users
                 .Where(u => u.UserUUID == uuid)
-                .Select(u => u.HasUserFlag("NotificationsMuted") == false)
+                .Select(u => u.UserFlags.Any(uf => uf.Flag.FlagName == "NotificationsMuted") == false)
                 .FirstOrDefaultAsync(ct)
             )
             {
