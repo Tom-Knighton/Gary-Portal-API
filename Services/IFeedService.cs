@@ -18,7 +18,7 @@ namespace GaryPortalAPI.Services
     public interface IFeedService : IDisposable
     {
         Task<ICollection<FeedPost>> GetAllAsync(long startfrom, int teamId = 0, int limit = 10, bool includeComments = false, CancellationToken ct = default);
-        Task<ICollection<FeedPostDTO>> GetAllDTOPostsForUserAsync(string uuid, CancellationToken ct = default);
+        Task<ICollection<FeedPostDTO>> GetAllDTOPostsForUserAsync(string uuid, int limit = -1, CancellationToken ct = default);
         Task<FeedPost> GetByIdAsync(int feedPostId, CancellationToken ct = default);
         Task ToggleLikeForPostAsync(int feedPostId, string userUUID, CancellationToken ct = default);
         Task<bool> HasUserLikedPostAsync(string userUUID, int feedPostId, CancellationToken ct = default);
@@ -88,12 +88,13 @@ namespace GaryPortalAPI.Services
             return posts;
         }
 
-        public async Task<ICollection<FeedPostDTO>> GetAllDTOPostsForUserAsync(string uuid, CancellationToken ct = default)
+        public async Task<ICollection<FeedPostDTO>> GetAllDTOPostsForUserAsync(string uuid, int limit = -1, CancellationToken ct = default)
         {
             ICollection<FeedPost> posts = await _context.FeedPosts
                    .AsNoTracking()
                    .Where(p => p.PosterUUID == uuid && !p.IsDeleted)
                    .OrderByDescending(fp => fp.PostCreatedAt)
+                   .If(limit > -1, p => p.Take(limit))
                    .ToListAsync(ct);
 
             return posts.Select(p => p is FeedMediaPost media ? media.ConvertToDTO() : p.ConvertToDTO()).ToList();

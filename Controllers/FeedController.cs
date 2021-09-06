@@ -42,11 +42,11 @@ namespace GaryPortalAPI.Controllers
 
         [HttpGet("GetPostDTOs")]
         [Produces(typeof(ICollection<FeedPostDTO>))]
-        public async Task<IActionResult> GetMyDTOPosts(string uuid = "", CancellationToken ct = default)
+        public async Task<IActionResult> GetMyDTOPosts(string uuid = "", int limit = -1, CancellationToken ct = default)
         {
             if (!AuthenticationUtilities.IsAllowedFeed(User))
                 return BadRequest("User has been banned from Feed");
-            return Ok(await _feedService.GetAllDTOPostsForUserAsync(!string.IsNullOrEmpty(uuid) ? uuid : AuthenticationUtilities.GetUUIDFromIdentity(User), ct));
+            return Ok(await _feedService.GetAllDTOPostsForUserAsync(!string.IsNullOrEmpty(uuid) ? uuid : AuthenticationUtilities.GetUUIDFromIdentity(User), limit, ct));
         }
 
         [HttpGet("{feedPostId}")]
