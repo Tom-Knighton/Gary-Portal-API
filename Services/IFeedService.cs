@@ -112,6 +112,12 @@ namespace GaryPortalAPI.Services
                 .Include(fp => ((FeedPollPost)fp).PollAnswers)
                     .ThenInclude(fpa => fpa.Votes.Where(fpv => !fpv.IsDeleted))
                 .FirstOrDefaultAsync(fp => fp.PostId == feedPostId, ct);
+
+            if (post is null)
+            {
+                return null;
+            }
+
             post.PosterDTO = post.Poster.ConvertToDTO();
             post.Poster = null;
             foreach (FeedComment comment in post.Comments)
