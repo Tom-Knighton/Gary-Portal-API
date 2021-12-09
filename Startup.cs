@@ -79,11 +79,7 @@ namespace GaryPortalAPI
 
             services.AddDbContext<AppDbContext>(o =>
             {
-                o.UseMySql(
-                        Configuration["AppSettings:Connection"],
-                        new MySqlServerVersion(new Version(8, 0, 21)),
-                        mySqlOptions => mySqlOptions
-                            .CharSetBehavior(CharSetBehavior.NeverAppend))
+                o.UseMySql(Configuration["AppSettings:Connection"], new MySqlServerVersion(new Version(8, 0, 21)))
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors();
             });

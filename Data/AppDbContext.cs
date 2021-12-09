@@ -58,6 +58,10 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.HasCharSet("utf8mb4", true);
+        modelBuilder.UseCollation("utf8mb4_bin");
+
         #region User
 
         modelBuilder.Entity<User>(entity =>
