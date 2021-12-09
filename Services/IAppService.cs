@@ -10,6 +10,7 @@ namespace GaryPortalAPI.Services
 {
     public interface IAppService : IDisposable
     {
+        bool TestAppHealthAsync();
         Task<ICollection<Sticker>> GetStickersAsync();
         Task<ICollection<Event>> GetEventsAsync(int teamId, CancellationToken ct = default);
         Task<ICollection<Commandment>> GetCommandmentsAsync(CancellationToken ct = default);
@@ -27,6 +28,11 @@ namespace GaryPortalAPI.Services
 
         public void Dispose()
         {
+        }
+
+        public bool TestAppHealthAsync()
+        {
+            return _context.Database.CanConnect();
         }
 
         public async Task<ICollection<Sticker>> GetStickersAsync()

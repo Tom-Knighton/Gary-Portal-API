@@ -22,19 +22,33 @@ namespace GaryPortalAPI.Controllers
             _appService = appService;
         }
 
+        [AllowAnonymous]
+        [HttpGet("Health")]
+        public IActionResult TestAppHealth()
+        {
+            return Ok(_appService.TestAppHealthAsync() == true ? 200 : 500);
+        }
+
+        [Obsolete("Use the /app/stickers endpoint instead")]
         [HttpGet("GetStickers")]
+        public async Task<IActionResult> GetStickers_Obsolete()
+        {
+            return Ok(await _appService.GetStickersAsync());
+        }
+
+        [HttpGet("Stickers")]
         public async Task<IActionResult> GetStickers()
         {
             return Ok(await _appService.GetStickersAsync());
         }
 
-        [HttpGet("GetEvents")]
+        [HttpGet("Events")]
         public async Task<IActionResult> GetEvents(int teamId = 0, CancellationToken ct = default)
         {
             return Ok(await _appService.GetEventsAsync(teamId, ct));
         }
 
-        [HttpGet("GetCommandments")]
+        [HttpGet("Commandments")]
         public async Task<IActionResult> GetCommandments(CancellationToken ct = default)
         {
             return Ok(await _appService.GetCommandmentsAsync(ct));
