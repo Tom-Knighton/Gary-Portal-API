@@ -19,7 +19,7 @@ jobs:
             docker rm GPAPIDev 2>/dev/null || true
             cp /home/GaryPortal/API/DEV/appsettings.Development.json appsettings.Development.json
             docker build -t garyportalapi-dev -f Dockerfile.dev .
-            docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped --network="host" garyportalapi-dev
+            docker create -p 0.0.0.0:5000:5000 --name "GPAPIDev" --restart unless-stopped --network net garyportalapi-dev
             docker start GPAPIDev
       - uses: sarisia/actions-status-discord@v1
         with:
@@ -35,7 +35,7 @@ jobs:
             docker rm GPAPIProd 2>/dev/null || true
             cp /home/GaryPortal/API/PROD/appsettings.json appsettings.json
             docker build -t garyportalapi-prod -f Dockerfile.prod .
-            docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped --network="host" garyportalapi-prod
+            docker create -p 0.0.0.0:6001:6001 --name "GPAPIProd" --restart unless-stopped --network net garyportalapi-prod
             docker start GPAPIProd
       - uses: sarisia/actions-status-discord@v1
         with:
@@ -51,7 +51,7 @@ jobs:
             docker build -t garyportalapi-devv5 -f Dockerfile.devv5 .
             docker stop GPAPIDevV5 2>/dev/null || true
             docker rm GPAPIDevV5 2>/dev/null || true
-            docker create -p 0.0.0.0:5101:5101 --name "GPAPIDevV5" --restart unless-stopped --network="host" garyportalapi-devv5
+            docker create -p 0.0.0.0:5101:5101 --name "GPAPIDevV5" --restart unless-stopped --network net garyportalapi-devv5
             docker start GPAPIDevV5
       - uses: sarisia/actions-status-discord@v1
         with:
