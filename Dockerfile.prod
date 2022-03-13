@@ -12,8 +12,7 @@ COPY appsettings.json out/appsettings.json
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /App
 COPY --from=build-env /App/out .
+EXPOSE 6001
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://*:6001
-ENV VIRTUAL_HOST=api.garyportal.tomk.online
-ENV LETSENCRYPT_HOST=api.garyportal.tomk.online
 ENTRYPOINT ["dotnet", "GaryPortalAPI.dll"]
